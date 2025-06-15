@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حجز طباعة ملخصات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+    <!-- ناف بار -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <h1 style="color: rgb(255, 170, 0);">الليثــــي برنــت</h1>
+            </div>
+            <div class="hamburger">☰</div>
+            <div class="nav-links">
+                <a href="./index.html" class="active">حجز طباعة</a>
+                <a href="./search.html">استعلام عن حجز</a>
+                <a href="./history.html">سجل الحجوزات</a>
+                <a href="./stats.html">الإحصائيات</a>
+                <a href="./manage_teachers.html">المعلمين</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>حجز طباعة كتب</h2>
+        <form id="bookingForm">
+            <div class="form-group">
+                <label>الاسم الكامل (يجب أن يكون رباعيًا)</label>
+                <input type="text" id="name" required placeholder="مثال: محمد أحمد علي سعيد">
+            </div>
+            <div class="form-group">
+                <label>الصف الدراسي</label>
+                <select id="grade" required>
+                    <option value="">اختر الصف الدراسي</option>
+                    <option value=" الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                    <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                    <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                    <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                    <option value=" الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                    <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                    <option value=" االصف الاول الاعدادي">الصف الاول الاعدادي</option>
+                    <option value="الصف الثاني الاعدادي">الصف الثاني الاعدادي</option>
+                    <option value="الصف الثالث الاعدادي">الصف الثالث الاعدادي</option>
+                    <option value="الصف الاول الثانوي">الصف الاول الثانوي</option>
+                    <option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option>
+                    <option value="الصف الثالث الثانوي">الصف الثالث الثانوى</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>تاريخ الحجز</label>
+                <input type="date" id="bookingDate" readonly required>
+            </div>
+            <div class="form-group">
+                <label>تاريخ الاستلام</label>
+                <input type="date" id="receiveDate" required>
+            </div>
+            <div class="form-group">
+                <label>مواصفات الطباعة</label>
+                <select id="specifications" required>
+                    <option value="">اختر المواصفات</option>
+                    <option value="وجه واحد">وجه واحد</option>
+                    <option value="وجهين">وجهين</option>
+                    <option value="وجهين 2 صفحة فى الورقة">وجهين 2 صفحة فى الورقة</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>عدد الكتب</label>
+                <input type="number" id="bookCount" min="1" required disabled>
+            </div>
+            <!-- الحقول الديناميكية ستظهر هنا، مباشرة بعد عدد الكتب -->
+            <div id="paperCountsWrapper" style="display:none;"></div>
+            <!-- اجمالى عدد الأوراق بعد خانات عدد الورق مباشرة -->
+            <div class="form-group" id="totalPapersGroup" style="display:none;">
+                <label>إجمالى عدد الأوراق</label>
+                <input type="number" id="totalPapers" readonly>
+            </div>
+            <!-- سعر الورقة -->
+            <div class="form-group" id="paperPriceGroup" style="display:none;">
+                <label>سعر الورقة (بالجنيه)</label>
+                <input type="number" id="paperPrice" min="0" step="0.01" placeholder="أدخل سعر الورقة">
+            </div>
+            <div class="form-group">
+                <label>أسماء الكتب (كل كتاب في سطر)</label>
+                <textarea id="bookNames" placeholder="أدخل اسم كل كتاب في سطر منفصل" required></textarea>
+            </div>
+            <!-- نوع التقفيل الجديد -->
+            <div class="form-group">
+                <label>نوع التقفيل</label>
+                <select id="bindingType" required>
+                    <option value="">اختر نوع التقفيل</option>
+                    <option value="تكعيب بلاستيك">تكعيب بلاستيك</option>
+                    <option value="تكعيب سلك">تكعيب سلك</option>
+                    <option value="تقفيل كتاب">تقفيل كتاب</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>إجمالى السعر (بالجنيه)</label>
+                <input type="number" id="bookTotalPrice" min="0" step="0.01" readonly style="background:#e6e6e6;">
+            </div>
+            <button type="submit">تسجيل الحجز</button>
+        </form>
+    </div>
+
+    <div id="receipt">
+        <div id="customerCopy" class="receipt-copy">
+            <h1>شركة الليثي برنــت</h1>
+            <h2>إيصال الحجز - نسخة العميل</h2>
+            <p><strong>الاسم:</strong> <span id="receiptNameCustomer"></span></p>
+            <p><strong>الصف الدراسي:</strong> <span id="receiptGradeCustomer"></span></p>
+            <p><strong>تاريخ الحجز:</strong> <span id="receiptBookingDateCustomer"></span></p>
+            <p><strong>تاريخ الاستلام:</strong> <span id="receiptReceiveDateCustomer"></span></p>
+            <p><strong>المواصفات:</strong> <span id="receiptSpecsCustomer"></span></p>
+            <p><strong>عدد الكتب:</strong> <span id="receiptCountCustomer"></span></p>
+            <!-- تم حذف سطر سعر الورقة هنا -->
+            <p><strong>أسماء الكتب:</strong></p>
+            <div class="receiptBooks" id="receiptBooksCustomer"></div>
+            <!-- نوع التقفيل في الإيصال -->
+            <p><strong>نوع التقفيل:</strong> <span id="receiptBindingType"></span></p>
+            <p><strong>عدد الورق:</strong></p>
+            <div id="receiptPapersCustomer"></div>
+            <p><strong>إجمالى عدد الأوراق:</strong> <span id="receiptTotalPapers"></span></p>
+            <p><strong>إجمالى السعر الكلى:</strong> <span id="receiptTotalPaperAmount"></span> جنيه</p>
+        </div>
+        <button id="printBtn" onclick="window.print()">طباعة الإيصال</button>
+    </div>
+
+    <script>
+        // إعداد Firebase (استبدل هذا بإعداداتك من Firebase Console)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyi_wxwTK0ywftlnjAWXKJ3RJN6RMeb1M",
+            authDomain: "booking-books-4ebd7.firebaseapp.com",
+            databaseURL: "https://booking-books-4ebd7-default-rtdb.firebaseio.com",
+            projectId: "booking-books-4ebd7",
+            storageBucket: "booking-books-4ebd7.firebasestorage.app",
+            messagingSenderId: "1001203182166",
+            appId: "1:1001203182166:web:2ba3c295bde10628e1e9f7"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        function normalizeName(name) {
+            return name
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, '_')
+                .replace(/[أإآ]/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/ى/g, 'ي')
+                .replace(/[\.\#\$\/\[\]]/g, '_');
+        }
+
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingDate').value = today;
+            // عدد الكتب غير مفعّل عند التحميل
+            document.getElementById('bookCount').disabled = true;
+        };
+
+        function isQuadrupleName(name) {
+            const parts = name.trim().split(/\s+/);
+            return parts.length === 4;
+        }
+
+        // دالة لإظهار أو إخفاء حقول عدد الورق وسعر الورقة حسب الشروط
+        function handlePaperFieldsDisplay() {
+            const specifications = document.getElementById('specifications').value;
+            const bookCountInput = document.getElementById('bookCount');
+            const bookCount = parseInt(bookCountInput.value) || 0;
+            const paperCountsWrapper = document.getElementById('paperCountsWrapper');
+            const paperPriceGroup = document.getElementById('paperPriceGroup');
+            const totalPapersGroup = document.getElementById('totalPapersGroup');
+
+            // تفعيل أو تعطيل خانة عدد الكتب حسب اختيار المواصفات
+            if (specifications) {
+                bookCountInput.disabled = false;
+            } else {
+                bookCountInput.disabled = true;
+                bookCountInput.value = '';
+            }
+
+            if (specifications && bookCount > 0) {
+                paperCountsWrapper.style.display = '';
+                totalPapersGroup.style.display = '';
+                paperPriceGroup.style.display = '';
+                createPaperInputs(bookCount);
+            } else {
+                paperCountsWrapper.style.display = 'none';
+                paperCountsWrapper.innerHTML = '';
+                totalPapersGroup.style.display = 'none';
+                paperPriceGroup.style.display = 'none';
+                document.getElementById('paperPrice').value = '';
+                document.getElementById('totalPapers').value = '';
+            }
+            // تحديث اجمالى السعر عند تغيير المواصفات
+            updateBookTotalPrice();
+        }
+
+        // إنشاء الحقول الديناميكية لعدد الورق
+        function createPaperInputs(count) {
+            const wrapper = document.getElementById('paperCountsWrapper');
+            // إذا كان عدد الحقول مطابق لنفس العدد، لا تقم بإعادة الإنشاء
+            if (wrapper.childElementCount === count) return;
+
+            wrapper.innerHTML = '';
+            for (let i = 1; i <= count; i++) {
+                const group = document.createElement('div');
+                group.className = 'form-group';
+                const label = document.createElement('label');
+                label.textContent = `عدد الورق للكتاب رقم ${i}`;
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '1';
+                input.required = true;
+                input.name = `paperCount_${i}`;
+                input.className = 'paperCountInput';
+                input.placeholder = `أدخل عدد الورق للكتاب رقم ${i}`;
+                input.addEventListener('input', () => {
+                    updateTotalPapers();
+                    updateBookTotalPrice();
+                });
+                group.appendChild(label);
+                group.appendChild(input);
+                wrapper.appendChild(group);
+            }
+            updateTotalPapers();
+            updateBookTotalPrice();
+        }
+
+        // تحديث اجمالى عدد الأوراق تلقائيًا
+        function updateTotalPapers() {
+            const paperCountsInputs = document.querySelectorAll('.paperCountInput');
+            let sum = 0;
+            paperCountsInputs.forEach(input => {
+                const v = parseInt(input.value);
+                if(!isNaN(v)) sum += v;
+            });
+            document.getElementById('totalPapers').value = sum;
+        }
+
+        // تحديث إجمالى السعر تلقائيًا حسب المواصفات
+        function updateBookTotalPrice() {
+            const specifications = document.getElementById('specifications').value;
+            const totalPapers = parseInt(document.getElementById('totalPapers').value) || 0;
+            const paperPrice = parseFloat(document.getElementById('paperPrice').value) || 0;
+
+            let total = 0;
+            if (specifications === "وجه واحد") {
+                total = totalPapers * paperPrice;
+            } else if (specifications === "وجهين") {
+                total = (totalPapers / 2) * paperPrice;
+            } else if (specifications === "وجهين 2 صفحة فى الورقة") {
+                total = (totalPapers / 4) * paperPrice;
+            }
+            document.getElementById('bookTotalPrice').value = total > 0 ? total.toFixed(2) : "";
+        }
+
+        document.getElementById('specifications').addEventListener('change', handlePaperFieldsDisplay);
+        document.getElementById('bookCount').addEventListener('input', handlePaperFieldsDisplay);
+        document.getElementById('paperPrice').addEventListener('input', updateBookTotalPrice);
+        document.getElementById('totalPapers').addEventListener('input', updateBookTotalPrice);
+
+        document.addEventListener('input', function(e){
+            if(e.target.classList.contains('paperCountInput')) {
+                updateTotalPapers();
+                updateBookTotalPrice();
+            }
+        });
+
+        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+
+            if (!isQuadrupleName(name)) {
+                alert("الاسم يجب أن يكون رباعيًا (مثال: محمد أحمد علي سعيد)!");
+                return;
+            }
+
+            const cleanName = normalizeName(name);
+
+            const grade = document.getElementById('grade').value;
+            const bookingDate = document.getElementById('bookingDate').value;
+            const receiveDate = document.getElementById('receiveDate').value;
+            const specifications = document.getElementById('specifications').value;
+            const bookCount = parseInt(document.getElementById('bookCount').value);
+            const bookNames = document.getElementById('bookNames').value;
+            // *** التقفيل ***
+            const bindingType = document.getElementById('bindingType').value;
+            const bookTotalPrice = parseFloat(document.getElementById('bookTotalPrice').value);
+            // بيانات عدد الورق
+            const paperCountsInputs = document.querySelectorAll('.paperCountInput');
+            let paperCounts = [];
+            let paperCountsText = '';
+            let totalPapers = 0;
+            paperCountsInputs.forEach((input, idx) => {
+                const val = parseInt(input.value.trim()) || 0;
+                paperCounts.push(val);
+                paperCountsText += `عدد الورق للكتاب رقم ${idx + 1}: ${val}\n`;
+                totalPapers += val;
+            });
+
+            // سعر الورقة
+            const paperPrice = parseFloat(document.getElementById('paperPrice').value) || 0;
+            // اجمالى عدد الأوراق
+            document.getElementById('totalPapers').value = totalPapers;
+            // إجمالى السعر الكلي (عدد الأوراق * سعر الورقة)
+            let totalPaperAmount = 0;
+            // نفس المنطق كالسعر النهائي
+            if (specifications === "وجه واحد") {
+                totalPaperAmount = totalPapers * paperPrice;
+            } else if (specifications === "وجهين") {
+                totalPaperAmount = (totalPapers / 2) * paperPrice;
+            } else if (specifications === "وجهين 2 صفحة فى الورقة") {
+                totalPaperAmount = (totalPapers / 4) * paperPrice;
+            }
+            totalPaperAmount = totalPaperAmount > 0 ? totalPaperAmount.toFixed(2) : "0.00";
+
+            // عرض إيصال نسخة العميل
+            document.getElementById('receiptNameCustomer').textContent = name;
+            document.getElementById('receiptGradeCustomer').textContent = grade;
+            document.getElementById('receiptBookingDateCustomer').textContent = bookingDate;
+            document.getElementById('receiptReceiveDateCustomer').textContent = receiveDate;
+            document.getElementById('receiptSpecsCustomer').textContent = specifications;
+            document.getElementById('receiptCountCustomer').textContent = bookCount;
+            document.getElementById('receiptBooksCustomer').textContent = bookNames;
+            // *** نوع التقفيل في الإيصال ***
+            document.getElementById('receiptBindingType').textContent = bindingType;
+            // تم حذف سطر سعر الورقة من الإيصال هنا
+            document.getElementById('receiptPapersCustomer').innerHTML = "<pre style='direction: rtl;text-align: right;'>" + paperCountsText + "</pre>";
+            document.getElementById('receiptTotalPapers').textContent = totalPapers;
+            document.getElementById('receiptTotalPaperAmount').textContent = totalPaperAmount;
+
+            document.getElementById('receipt').style.display = 'block';
+
+            // إيصال الموظف (لم يتم حذف سعر الورقة منه حسب طلبك)
+            const employeeReceipt = `
+                شركة الليثي برنــت 
+                إيصال الحجز - نسخة الموظف
+                الاسم: ${name}
+                الصف الدراسي: ${grade}
+                تاريخ الحجز: ${bookingDate}
+                تاريخ الاستلام: ${receiveDate}
+                المواصفات: ${specifications}
+                عدد الكتب: ${bookCount}
+                أسماء الكتب:
+                ${bookNames}
+                نوع التقفيل: ${bindingType}
+                عدد الورق:
+                ${paperCountsText}
+                سعر الورقة: ${paperPrice} جنيه
+                إجمالى عدد الأوراق: ${totalPapers}
+                إجمالى السعر الكلى: ${totalPaperAmount} جنيه
+            `.trim();
+
+            // طابع زمني
+            const timestamp = Date.now();
+
+            // حفظ البيانات في Firebase (أضف نوع التقفيل)
+            const bookingRef = database.ref('bookings/' + cleanName).push();
+            bookingRef.set({
+                name: name,
+                normalizedName: cleanName,
+                grade: grade,
+                bookingDate: bookingDate,
+                receiveDate: receiveDate,
+                specifications: specifications,
+                bookCount: bookCount,
+                bookNames: bookNames,
+                bindingType: bindingType, // أضف نوع التقفيل
+                bookTotalPrice: bookTotalPrice,
+                paperCounts: paperCounts,
+                paperPrice: paperPrice,
+                totalPapers: totalPapers,
+                totalPaperAmount: totalPaperAmount,
+                employeeReceipt: employeeReceipt,
+                timestamp: timestamp
+            })
+            .then(() => {
+                alert("تم التسجيل بنجاح في قاعدة البيانات!");
+                this.reset();
+                document.getElementById('paperCountsWrapper').style.display = 'none';
+                document.getElementById('paperCountsWrapper').innerHTML = '';
+                document.getElementById('paperPriceGroup').style.display = 'none';
+                document.getElementById('totalPapersGroup').style.display = 'none';
+                document.getElementById('bookCount').disabled = true;
+                document.getElementById('bookTotalPrice').value = "";
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('bookingDate').value = today;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert("فشل في تسجيل البيانات في قاعدة البيانات!");
+            });
+        });
+
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "F12" || 
+                (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) || 
+                (e.ctrlKey && e.key === "U")) {
+                e.preventDefault();
+            }
+        });
+
+    </script>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <p>جميع الحقوق محفوظة © 2025 Ziad Hagagy</p>
+        <div class="social-icons">
+            <a href="https://www.facebook.com/ZiadHassaann" target="_blank" aria-label="فيسبوك">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://wa.me/201027888008" target="_blank" aria-label="واتساب">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+            <a href="https://ziadhagagytech.github.io/portfolio/" target="_blank" aria-label="موقع شخصي">
+                <i class="fa-solid fa-globe"></i>
+            </a>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

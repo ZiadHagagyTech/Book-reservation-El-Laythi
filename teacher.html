@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>صفحة المعلم</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        /* ناف بار */
+        .navbar {
+            background: #2c3e50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+        }
+        .navbar .logo img {
+            height: 50px;
+        }
+        .navbar .nav-links {
+            display: flex;
+            justify-content: center;
+            flex-grow: 1;
+            gap: 30px;
+        }
+        .navbar .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .navbar .nav-links a:hover {
+            background: #3498db;
+            color: #fff;
+            transform: scale(1.05);
+        }
+        .navbar .nav-links a.active {
+            background: #3498db;
+        }
+        .hamburger {
+            display: none;
+            font-size: 24px;
+            color: #ecf0f1;
+            cursor: pointer;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .teacher-info {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .teacher-info h3 {
+            color: #3498db;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .teacher-info p {
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .stats-box {
+            background: #f0fff4;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 2px solid #2ecc71;
+        }
+        .stats-box p {
+            font-size: 18px;
+            color: #2c3e50;
+            margin: 5px 0;
+        }
+        .stats-box p strong {
+            color: #e67e22;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .action-btn {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .action-btn:hover {
+            background: #2980b9;
+        }
+        .booking-form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        .booking-form h3 {
+            color: #3498db;
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        #newBookingForm {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #newBookingForm label {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        #newBookingForm input, #newBookingForm textarea {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #newBookingForm input[readonly] {
+            background: #e9ecef;
+            cursor: not-allowed;
+        }
+        #newBookingForm textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        #newBookingForm button {
+            background: #3498db;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        #newBookingForm button:hover {
+            background: #2980b9;
+        }
+        .receipts-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .receipt-copy {
+            padding: 20px;
+            background: #fff;
+            position: relative;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .receipt-copy.not-printed {
+            border: 2px solid #e74c3c;
+            background: #fff5f5;
+        }
+        .receipt-copy.printed {
+            border: 2px solid #2ecc71;
+            background: #f0fff4;
+        }
+        .receipt-copy h1 {
+            text-align: center;
+            color: #e74c3c;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .receipt-copy h2 {
+            color: #3498db;
+            font-size: 24px;
+            margin-bottom: 15px;
+            border-bottom: 2px dashed #3498db;
+            padding-bottom: 8px;
+            text-align: center;
+        }
+        .receipt-copy p {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .receipt-copy strong {
+            color: #e67e22;
+            font-weight: 700;
+        }
+        .receipt-copy .receiptBooks {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 8px;
+            white-space: pre-wrap;
+            font-size: 15px;
+            color: #7f8c8d;
+            border-left: 4px solid #3498db;
+        }
+        .receipt-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        .toggle-btn {
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .toggle-btn.check {
+            background: #2ecc71;
+        }
+        .toggle-btn.uncheck {
+            background: #e74c3c;
+        }
+        .toggle-btn:hover {
+            opacity: 0.9;
+        }
+        .edit-btn {
+            background: #f1c40f;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .edit-btn:hover {
+            background: #d4ac0d;
+        }
+        .cancel-btn {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .cancel-btn:hover {
+            background: #c0392b;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            overflow-y: auto;
+        }
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+            overflow-y: auto;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #e74c3c;
+        }
+        .modal-content h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        #editForm {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #editForm label {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        #editForm input, #editForm textarea {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #editForm input[readonly] {
+            background: #e9ecef;
+            cursor: not-allowed;
+        }
+        #editForm textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        #editForm button {
+            background: #3498db;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        #editForm button:hover {
+            background: #2980b9;
+        }
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .navbar-content {
+                padding: 15px;
+            }
+            .navbar .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: #2c3e50;
+                width: 100%;
+                padding: 20px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }
+            .navbar .nav-links.active {
+                display: flex;
+            }
+            .navbar .nav-links a {
+                font-size: 16px;
+                padding: 10px;
+                text-align: center;
+            }
+            .hamburger {
+                display: block;
+            }
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            h2 {
+                font-size: 24px;
+            }
+            .teacher-info h3 {
+                font-size: 20px;
+            }
+            .teacher-info p {
+                font-size: 14px;
+            }
+            .stats-box p {
+                font-size: 16px;
+            }
+            .receipt-copy h1 {
+                font-size: 24px;
+            }
+            .receipt-copy h2 {
+                font-size: 20px;
+            }
+            .receipt-copy p {
+                font-size: 14px;
+            }
+            .receipt-copy .receiptBooks {
+                font-size: 13px;
+            }
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .action-btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+        }
+        .footer {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px 0;
+            text-align: center;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px;
+        }
+        .footer-content p {
+            font-size: 16px;
+            margin: 0;
+        }
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+        .social-icons a {
+            color: #ecf0f1;
+            font-size: 20px;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: #3498db;
+            transform: scale(1.2);
+        }
+
+        /* تنسيق select ليطابق input و textarea */
+#newBookingForm select,
+#editForm select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background: #fff;
+    color: #2c3e50;
+    transition: border-color 0.3s ease;
+    margin-bottom: 0; /* نفس مسافة الإدخال */
+    width: 100%;      /* مطابقة العرض */
+    box-sizing: border-box;
+}
+
+/* عند التركيز */
+#newBookingForm select:focus,
+#editForm select:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+
+/* نفس تصميم الإيصال الاحترافي */
+.teacher-receipt-copy {
+    padding: 20px;
+    background: #fff;
+    position: relative;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border: 2px solid #3498db;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Tajawal', sans-serif;
+    direction: rtl;
+}
+.teacher-receipt-copy h1 {
+    text-align: center;
+    color: #e67e22;
+    font-size: 28px;
+    margin-bottom: 15px;
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.08);
+}
+.teacher-receipt-copy h2 {
+    color: #3498db;
+    font-size: 22px;
+    margin-bottom: 18px;
+    border-bottom: 2px dashed #3498db;
+    padding-bottom: 8px;
+    text-align: center;
+}
+.teacher-receipt-copy p {
+    margin: 8px 0;
+    font-size: 16px;
+    color: #2c3e50;
+}
+.teacher-receipt-copy strong {
+    color: #e67e22;
+    font-weight: 700;
+}
+.teacher-receipt-copy .receiptBooks {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 8px;
+    white-space: pre-wrap;
+    font-size: 15px;
+    color: #7f8c8d;
+    border-left: 4px solid #3498db;
+}
+.teacher-receipt-copy .receipt-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    gap: 10px;
+}
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+    <!-- ناف بار -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <h1 style="color: rgb(255, 170, 0);">الليثــــي برنــت</h1>
+            </div>
+            <div class="hamburger">☰</div>
+            <div class="nav-links">
+                <a href="./manage_teachers.html">الرئيسية</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>صفحة المعلم</h2>
+        <div class="teacher-info" id="teacherInfo">
+            <h3 id="teacherName">اسم المعلم</h3>
+            <p><strong>رقم الهاتف:</strong> <span id="teacherPhone">غير متوفر</span></p>
+        </div>
+        <div class="stats-box" id="teacherStats">
+            <p><strong>عدد الحجوزات:</strong> <span id="totalBookings">0</span></p>
+            <p><strong>عدد المذكرات المحجوزة:</strong> <span id="totalNotes">0</span></p>
+            <p><strong>إجمالي النقاط:</strong> <span id="totalPoints">0</span></p>
+            <p><strong>الخصم المتاح:</strong> <span id="discount">0 جنيه</span></p>
+        </div>
+        <div class="booking-form" id="bookingForm">
+            <h3>حجز مذكرات جديدة</h3>
+            <form id="newBookingForm">
+                <label>تاريخ الحجز:</label>
+                <input type="date" id="bookingDate" readonly required>
+                <label>تاريخ الاستلام:</label>
+                <input type="date" id="receiveDate" required>
+                <label>عدد المذكرات:</label>
+                <input type="number" id="noteCount" required min="1">
+                <label>سعر المذكرة:</label>
+                <input type="number" id="notePrice" required min="0" step="0.01">
+                <label>إجمالي السعر:</label>
+                <input type="number" id="totalPrice" readonly required min="0" step="0.01">
+                <label>المواصفات:</label>
+                <textarea id="specifications" required placeholder="قم بكتابة أى مواصفات مطلوبة"></textarea>
+                <!-- إضافة الحقول الجديدة: مواصفات الطباعة ونوع الطباعة -->
+                <label>مواصفات الطباعة:</label>
+                <select id="printSpecs" required>
+                    <option value="">اختر...</option>
+                    <option value="وجه">وجه</option>
+                    <option value="وجهين">وجهين</option>
+                    <option value="وجهين 2 صفحة فى الورقه">وجهين 2 صفحة فى الورقه</option>
+                </select>
+                <label>نوع الطباعة:</label>
+                <select id="printType" required>
+                    <option value="">اختر...</option>
+                    <option value="ابيض واسود">ابيض واسود</option>
+                    <option value="الوان">الوان</option>
+                </select>
+                <button type="submit">حجز</button>
+            </form>
+        </div>
+        <div class="receipts-container" id="receiptsContainer"></div>
+        <div class="action-buttons">
+            <button class="action-btn" onclick="showBookingForm()">حجز جديد</button>
+            <button class="action-btn" onclick="showPreviousBookings()">عرض الحجوزات السابقة</button>
+            <button class="action-btn" onclick="printAllBookings()">طباعة جميع الحجوزات</button>
+        </div>
+        <div class="modal" id="editModal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeEditModal()">×</span>
+                <h3>تعديل الحجز</h3>
+                <form id="editForm">
+                    <label>تاريخ الحجز:</label>
+                    <input type="date" id="editBookingDate" readonly required>
+                    <label>تاريخ الاستلام:</label>
+                    <input type="date" id="editReceiveDate" required>
+                    <label>عدد المذكرات:</label>
+                    <input type="number" id="editNoteCount" required min="1">
+                    <label>سعر المذكرة:</label>
+                    <input type="number" id="editNotePrice" required min="0" step="0.01">
+                    <label>إجمالي السعر:</label>
+                    <input type="number" id="editTotalPrice" readonly required min="0" step="0.01">
+                    <label>المواصفات:</label>
+                    <textarea id="editSpecifications" required></textarea>
+                    <!-- إضافة الحقول الجديدة في التعديل -->
+                    <label>مواصفات الطباعة:</label>
+                    <select id="editPrintSpecs" required>
+                        <option value="">اختر...</option>
+                        <option value="وجه">وجه</option>
+                        <option value="وجهين">وجهين</option>
+                        <option value="وجهين 2 صفحة فى الورقه">وجهين 2 صفحة فى الورقه</option>
+                    </select>
+                    <label>نوع الطباعة:</label>
+                    <select id="editPrintType" required>
+                        <option value="">اختر...</option>
+                        <option value="ابيض واسود">ابيض واسود</option>
+                        <option value="الوان">الوان</option>
+                    </select>
+                    <input type="hidden" id="editKey">
+                    <button type="submit">حفظ التعديلات</button>
+                </form>
+            </div>
+        </div>
+        <!-- إيصال المعلم (يظهر بعد الحجز فقط) -->
+        <div class="modal" id="teacherReceiptModal">
+            <div class="modal-content" id="teacherReceiptContent" style="direction: rtl;">
+                <span class="close-btn" onclick="closeTeacherReceiptModal()">×</span>
+                <!-- سيتم تعبئة الإيصال عبر جافاسكريبت -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>جميع الحقوق محفوظة © 2025 Ziad Hagagy</p>
+            <div class="social-icons">
+                <a href="https://www.facebook.com/ZiadHassaann" target="_blank" aria-label="فيسبوك">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://wa.me/201027888008" target="_blank" aria-label="واتساب">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+       // إعداد Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyAyi_wxwTK0ywftlnjAWXKJ3RJN6RMeb1M",
+    authDomain: "booking-books-4ebd7.firebaseapp.com",
+    databaseURL: "https://booking-books-4ebd7-default-rtdb.firebaseio.com",
+    projectId: "booking-books-4ebd7",
+    storageBucket: "booking-books-4ebd7.firebasestorage.app",
+    messagingSenderId: "1001203182166",
+    appId: "1:1001203182166:web:2ba3c295bde10628e1e9f7"
+};
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// جلب معرف المعلم من الرابط
+const urlParams = new URLSearchParams(window.location.search);
+const teacherId = decodeURIComponent(urlParams.get('teacherId') || 'غير_متوفر');
+
+// تحميل بيانات المعلم
+window.onload = function() {
+    loadTeacherInfo();
+    loadTeacherStats();
+    setTodayDate();
+};
+
+function setTodayDate() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('bookingDate').value = today;
+    document.getElementById('editBookingDate').value = today;
+}
+
+function loadTeacherInfo() {
+    database.ref(`teachers/${teacherId}`).once('value')
+    .then((snapshot) => {
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            document.getElementById('teacherName').textContent = data.name || 'غير متوفر';
+            document.getElementById('teacherPhone').textContent = data.phone || 'غير متوفر';
+        } else {
+            document.getElementById('teacherInfo').innerHTML = '<p>لم يتم العثور على بيانات المعلم!</p>';
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        document.getElementById('teacherInfo').innerHTML = '<p>حدث خطأ أثناء جلب بيانات المعلم!</p>';
+    });
+}
+
+function loadTeacherStats() {
+    database.ref(`teacherBookings/${teacherId}`).on('value', (snapshot) => {
+        let totalBookings = 0;
+        let totalNotes = 0;
+        let totalPoints = 0;
+
+        if (snapshot.exists()) {
+            snapshot.forEach((subSnapshot) => {
+                totalBookings++;
+                const data = subSnapshot.val();
+                const noteCount = parseInt(data.noteCount || 0);
+                totalNotes += noteCount;
+            });
+
+            totalPoints = Math.floor(totalNotes / 100) * 10;
+            const remainingNotes = totalNotes % 100;
+            totalPoints += (remainingNotes / 100) * 10;
+        }
+
+        const discount = totalPoints * 1.5;
+
+        document.getElementById('totalBookings').textContent = totalBookings;
+        document.getElementById('totalNotes').textContent = totalNotes;
+        document.getElementById('totalPoints').textContent = totalPoints.toFixed(2);
+        document.getElementById('discount').textContent = discount.toFixed(2) + ' جنيه';
+    });
+}
+
+function loadTeacherBookings() {
+    const receiptsContainer = document.getElementById('receiptsContainer');
+    receiptsContainer.innerHTML = '';
+
+    database.ref(`teacherBookings/${teacherId}`).on('value', (snapshot) => {
+        let receipts = [];
+
+        if (snapshot.exists()) {
+            snapshot.forEach((subSnapshot) => {
+                const data = subSnapshot.val();
+                receipts.push({
+                    data: data,
+                    key: subSnapshot.key,
+                    timestamp: data.timestamp || 0
+                });
+            });
+
+            if (receipts.length > 0) {
+                receipts.sort((a, b) => b.timestamp - a.timestamp);
+
+                receipts.forEach((receipt) => {
+                    const data = receipt.data;
+                    const receiptElement = document.createElement('div');
+                    const isPrinted = data.isPrinted || false;
+                    receiptElement.className = `receipt-copy ${isPrinted ? 'printed' : 'not-printed'}`;
+                    receiptElement.innerHTML = `
+                        <h1>شركة الليثي برنـت</h1>
+                        <h2>إيصال الحجز - نسخة الموظف</h2>
+                        <p><strong>الاسم:</strong> ${data.name}</p>
+                        <p><strong>الصف الدراسي:</strong> ${data.grade}</p>
+                        <p><strong>تاريخ الحجز:</strong> ${data.bookingDate}</p>
+                        <p><strong>تاريخ الاستلام:</strong> ${data.receiveDate}</p>
+                        <p><strong>عدد المذكرات:</strong> ${data.noteCount}</p>
+                        <p><strong>سعر المذكرة:</strong> ${data.notePrice} جنيه</p>
+                        <p><strong>إجمالي السعر:</strong> ${data.totalPrice} جنيه</p>
+                        <p><strong>المواصفات:</strong></p>
+                        <div class="receiptBooks">${data.specifications}</div>
+                        <p><strong>مواصفات الطباعة:</strong> ${data.printSpecs || ''}</p>
+                        <p><strong>نوع الطباعة:</strong> ${data.printType || ''}</p>
+                        <div class="receipt-actions">
+                            <button class="toggle-btn ${isPrinted ? 'uncheck' : 'check'}" 
+                                    onclick="togglePrintStatus('${receipt.key}', this)">
+                                ${isPrinted ? 'Uncheck' : 'Check'}
+                            </button>
+                            <button class="edit-btn" onclick="openEditModal('${receipt.key}', '${data.bookingDate}', '${data.receiveDate}', '${data.noteCount}', '${data.notePrice}', '${data.totalPrice}', \`${data.specifications}\`, '${data.printSpecs || ''}', '${data.printType || ''}')">تعديل</button>
+                            <button class="cancel-btn" onclick="cancelBooking('${receipt.key}')">إلغاء</button>
+                        </div>
+                    `;
+                    receiptsContainer.appendChild(receiptElement);
+                });
+            } else {
+                receiptsContainer.innerHTML = '<p>لا توجد حجوزات لهذا المعلم!</p>';
+            }
+        } else {
+            receiptsContainer.innerHTML = '<p>لا توجد حجوزات لهذا المعلم!</p>';
+        }
+    });
+}
+
+function showBookingForm() {
+    const bookingForm = document.getElementById('bookingForm');
+    const receiptsContainer = document.getElementById('receiptsContainer');
+    bookingForm.style.display = 'block';
+    receiptsContainer.style.display = 'none';
+}
+
+function showPreviousBookings() {
+    const bookingForm = document.getElementById('bookingForm');
+    const receiptsContainer = document.getElementById('receiptsContainer');
+    bookingForm.style.display = 'none';
+    receiptsContainer.style.display = 'block';
+    loadTeacherBookings();
+}
+
+function calculateTotalPrice() {
+    const noteCount = parseInt(document.getElementById('noteCount').value) || 0;
+    const notePrice = parseFloat(document.getElementById('notePrice').value) || 0;
+    const totalPrice = noteCount * notePrice;
+    document.getElementById('totalPrice').value = totalPrice.toFixed(2);
+}
+
+function calculateEditTotalPrice() {
+    const noteCount = parseInt(document.getElementById('editNoteCount').value) || 0;
+    const notePrice = parseFloat(document.getElementById('editNotePrice').value) || 0;
+    const totalPrice = noteCount * notePrice;
+    document.getElementById('editTotalPrice').value = totalPrice.toFixed(2);
+}
+
+document.getElementById('noteCount').addEventListener('input', calculateTotalPrice);
+document.getElementById('notePrice').addEventListener('input', calculateTotalPrice);
+document.getElementById('editNoteCount').addEventListener('input', calculateEditTotalPrice);
+document.getElementById('editNotePrice').addEventListener('input', calculateEditTotalPrice);
+
+function togglePrintStatus(key, button) {
+    const isCurrentlyPrinted = button.classList.contains('uncheck');
+    const confirmMessage = isCurrentlyPrinted
+        ? "هل أنت متأكد أنك لم تنتهِ من طباعة هذا الحجز؟ سيتم تغيير الحالة إلى 'غير مطبوع'."
+        : "هل أنت متأكد أنك انتهيت من طباعة هذا الحجز؟ سيتم تغيير الحالة إلى 'مطبوع'.";
+    const userConfirmed = confirm(confirmMessage);
+    if (!userConfirmed) return;
+
+    const receiptRef = database.ref(`teacherBookings/${teacherId}/${key}`);
+    const newStatus = !isCurrentlyPrinted;
+    receiptRef.update({ isPrinted: newStatus })
+    .then(() => {
+        const receiptElement = button.closest('.receipt-copy');
+        if (newStatus) {
+            receiptElement.classList.remove('not-printed');
+            receiptElement.classList.add('printed');
+            button.classList.remove('check');
+            button.classList.add('uncheck');
+            button.textContent = 'Uncheck';
+        } else {
+            receiptElement.classList.remove('printed');
+            receiptElement.classList.add('not-printed');
+            button.classList.remove('uncheck');
+            button.classList.add('check');
+            button.textContent = 'Check';
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert("حدث خطأ أثناء تحديث حالة الطباعة!");
+    });
+}
+
+// تحديث دالة openEditModal لقبول الحقول الجديدة
+function openEditModal(key, bookingDate, receiveDate, noteCount, notePrice, totalPrice, specifications, printSpecs = '', printType = '') {
+    const modal = document.getElementById('editModal');
+    document.getElementById('editKey').value = key;
+    document.getElementById('editBookingDate').value = bookingDate;
+    document.getElementById('editReceiveDate').value = receiveDate;
+    document.getElementById('editNoteCount').value = noteCount;
+    document.getElementById('editNotePrice').value = notePrice;
+    document.getElementById('editTotalPrice').value = totalPrice;
+    document.getElementById('editSpecifications').value = specifications;
+    document.getElementById('editPrintSpecs').value = printSpecs;
+    document.getElementById('editPrintType').value = printType;
+    modal.style.display = 'block';
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('editModal');
+    modal.style.display = 'none';
+}
+
+document.getElementById('editForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const key = document.getElementById('editKey').value;
+    const updatedData = {
+        bookingDate: document.getElementById('editBookingDate').value,
+        receiveDate: document.getElementById('editReceiveDate').value,
+        noteCount: parseInt(document.getElementById('editNoteCount').value),
+        notePrice: parseFloat(document.getElementById('editNotePrice').value),
+        totalPrice: parseFloat(document.getElementById('editTotalPrice').value),
+        specifications: document.getElementById('editSpecifications').value,
+        printSpecs: document.getElementById('editPrintSpecs').value,
+        printType: document.getElementById('editPrintType').value,
+    };
+
+    database.ref(`teacherBookings/${teacherId}/${key}`).update(updatedData)
+    .then(() => {
+        alert('تم تحديث الحجز بنجاح!');
+        closeEditModal();
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء تحديث الحجز!');
+    });
+});
+
+function cancelBooking(key) {
+    const confirmCancel = confirm('هل أنت متأكد من إلغاء هذا الحجز؟');
+    if (!confirmCancel) return;
+
+    const receiptRef = database.ref(`teacherBookings/${teacherId}/${key}`);
+    receiptRef.remove()
+    .then(() => {
+        alert('تم إلغاء الحجز بنجاح!');
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء إلغاء الحجز!');
+    });
+}
+
+// دالة طباعة إيصال المعلم (نسخة المعلم فقط)
+function showTeacherReceipt(bookingData) {
+    const teacherName = document.getElementById('teacherName').textContent || '';
+    const modal = document.getElementById('teacherReceiptModal');
+    const content = document.getElementById('teacherReceiptContent');
+    content.innerHTML = `
+        <span class="close-btn" onclick="closeTeacherReceiptModal()">×</span>
+        <div class="teacher-receipt-copy">
+            <h1>شركة الليثي برنت</h1>
+            <h2>إيصال الحجز - نسخة المعلم</h2>
+            <p><strong>اسم المعلم:</strong> ${teacherName}</p>
+            <p><strong>تاريخ الحجز:</strong> ${bookingData.bookingDate}</p>
+            <p><strong>تاريخ الاستلام:</strong> ${bookingData.receiveDate}</p>
+            <p><strong>عدد المذكرات:</strong> ${bookingData.noteCount}</p>
+            <p><strong>سعر المذكرة:</strong> ${bookingData.notePrice} جنيه</p>
+            <p><strong>إجمالي السعر:</strong> ${bookingData.totalPrice} جنيه</p>
+            <p><strong>المواصفات:</strong></p>
+            <div class="receiptBooks">${bookingData.specifications}</div>
+            <p><strong>مواصفات الطباعة:</strong> ${bookingData.printSpecs}</p>
+            <p><strong>نوع الطباعة:</strong> ${bookingData.printType}</p>
+            <div class="receipt-actions" style="justify-content: center; margin-top: 20px;">
+                <button class="action-btn" onclick="printTeacherReceiptContent()">طباعة الإيصال</button>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'block';
+}
+
+function closeTeacherReceiptModal() {
+    document.getElementById('teacherReceiptModal').style.display = 'none';
+}
+
+function printTeacherReceiptContent() {
+    const printContent = document.querySelector('.teacher-receipt-copy').outerHTML;
+    const printWindow = window.open('', '', 'height=700,width=800');
+    printWindow.document.write('<html><head><title>إيصال الحجز - نسخة المعلم</title>');
+    printWindow.document.write('<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">');
+    printWindow.document.write('<style>');
+    printWindow.document.write(`
+.teacher-receipt-copy {
+    padding: 20px;
+    background: #fff;
+    position: relative;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border: 2px solid #3498db;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Tajawal', sans-serif;
+    direction: rtl;
+}
+.teacher-receipt-copy h1 {
+    text-align: center;
+    color: #e67e22;
+    font-size: 28px;
+    margin-bottom: 15px;
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.08);
+}
+.teacher-receipt-copy h2 {
+    color: #3498db;
+    font-size: 22px;
+    margin-bottom: 18px;
+    border-bottom: 2px dashed #3498db;
+    padding-bottom: 8px;
+    text-align: center;
+}
+.teacher-receipt-copy p {
+    margin: 8px 0;
+    font-size: 16px;
+    color: #2c3e50;
+}
+.teacher-receipt-copy strong {
+    color: #e67e22;
+    font-weight: 700;
+}
+.teacher-receipt-copy .receiptBooks {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 8px;
+    white-space: pre-wrap;
+    font-size: 15px;
+    color: #7f8c8d;
+    border-left: 4px solid #3498db;
+}
+.teacher-receipt-copy .receipt-actions {
+    display: none; /* إخفاء زر الطباعة عند الطباعة */
+}
+    `);
+    printWindow.document.write('</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(printContent);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 300);
+}
+
+document.getElementById('newBookingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const newBooking = {
+        name: document.getElementById('teacherName').textContent,
+        grade: 'معلم',
+        bookingDate: document.getElementById('bookingDate').value,
+        receiveDate: document.getElementById('receiveDate').value,
+        noteCount: parseInt(document.getElementById('noteCount').value),
+        notePrice: parseFloat(document.getElementById('notePrice').value),
+        totalPrice: parseFloat(document.getElementById('totalPrice').value),
+        specifications: document.getElementById('specifications').value,
+        printSpecs: document.getElementById('printSpecs').value,
+        printType: document.getElementById('printType').value,
+        isPrinted: false,
+        timestamp: Date.now()
+    };
+
+    database.ref(`teacherBookings/${teacherId}`).push(newBooking)
+    .then(() => {
+        showTeacherReceipt(newBooking);
+        document.getElementById('newBookingForm').reset();
+        setTodayDate();
+        document.getElementById('bookingForm').style.display = 'none';
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء إضافة الحجز!');
+    });
+});
+
+document.querySelector('.hamburger').addEventListener('click', function() {
+    document.querySelector('.nav-links').classList.toggle('active');
+});
+
+// تعطيل الزر الأيمن
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+
+// تعطيل اختصارات F12 و Ctrl+Shift+I و Ctrl+Shift+J و Ctrl+U
+document.addEventListener("keydown", function (e) {
+    if (e.key === "F12" || 
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) || 
+        (e.ctrlKey && e.key === "U")) {
+        e.preventDefault();
+    }
+});
+
+// طباعة جميع الحجوزات (للتوافق مع الزر)
+function printAllBookings() {
+    // التأكد أن الحجوزات معروضة
+    const receiptsContainer = document.getElementById('receiptsContainer');
+    if (receiptsContainer.style.display !== 'block') {
+        showPreviousBookings();
+    }
+    setTimeout(() => {
+        // تقسيم الإيصالات إلى مجموعات من 4
+        const allReceipts = Array.from(receiptsContainer.children);
+        let groupedHtml = '';
+        for (let i = 0; i < allReceipts.length; i += 4) {
+            groupedHtml += `<div class="receipt-grid-print">`;
+            for (let j = i; j < i + 4 && j < allReceipts.length; j++) {
+                groupedHtml += allReceipts[j].outerHTML;
+            }
+            groupedHtml += `</div>`;
+        }
+        // نص حفظ الحقوق
+        const copyright =
+            `<div style="text-align:center;margin-top:30px;font-family:'Tajawal',sans-serif;color:#888;">
+                جميع الحقوق محفوظة © 2025 Ziad Hagagy
+            </div>`;
+        // فتح نافذة للطباعة
+        const printWindow = window.open('', '', 'height=900,width=800');
+        printWindow.document.write('<html><head><title>طباعة جميع إيصالات الحجوزات</title>');
+        printWindow.document.write('<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">');
+        printWindow.document.write('<style>');
+        printWindow.document.write(`
+body { font-family:'Tajawal',sans-serif; direction:rtl; background:#f5f7fa; }
+.receipt-grid-print {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 20px 20px;
+    page-break-after: always;
+    width: 100%;
+    margin: 0 auto 30px auto;
+    box-sizing: border-box;
+    min-height: 95vh;
+    align-items: stretch;
+}
+.receipt-copy, .teacher-receipt-copy {
+    page-break-inside: avoid !important;
+    break-inside: avoid;
+    margin: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: block;
+    height: 100%;
+}
+.receipt-copy h1, .teacher-receipt-copy h1 {
+    text-align: center;
+    color: #e67e22;
+    font-size: 28px;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+.receipt-copy h2, .teacher-receipt-copy h2 {
+    color: #3498db;
+    font-size: 22px;
+    margin-bottom: 18px;
+    border-bottom: 2px dashed #3498db;
+    padding-bottom: 8px;
+    text-align: center;
+}
+.receipt-copy p, .teacher-receipt-copy p {
+    margin: 8px 0;
+    font-size: 16px;
+    color: #2c3e50;
+}
+.receipt-copy strong, .teacher-receipt-copy strong {
+    color: #e67e22;
+    font-weight: 700;
+}
+.receiptBooks {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 8px;
+    white-space: pre-wrap;
+    font-size: 15px;
+    color: #7f8c8d;
+    border-left: 4px solid #3498db;
+}
+.receipt-actions, .teacher-receipt-copy .receipt-actions {
+    display: none !important;
+}
+/* حذف الصفحة الفارغة الأخيرة */
+.receipt-grid-print:last-child {
+    page-break-after: auto !important;
+}
+@media print {
+  body {
+    background: none !important;
+  }
+  .receipt-grid-print {
+      min-height: 95vh;
+      align-items: stretch;
+      page-break-after: always;
+  }
+  .receipt-grid-print:last-child {
+      page-break-after: auto !important;
+  }
+}
+        `);
+        printWindow.document.write('</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write(groupedHtml);
+        printWindow.document.write(copyright);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 400);
+    }, 450);
+}
+    </script>
+</body>
+</html>

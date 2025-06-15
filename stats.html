@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>إحصائيات الحجوزات</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        /* ناف بار */
+        .navbar {
+            background: #2c3e50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1002;
+        }
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+        }
+        .navbar .logo img {
+            height: 50px;
+        }
+        .navbar .nav-links {
+            display: flex;
+            justify-content: center;
+            flex-grow: 1;
+            gap: 30px;
+        }
+        .navbar .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .navbar .nav-links a:hover {
+            background: #3498db;
+            color: #fff;
+            transform: scale(1.05);
+        }
+        .navbar .nav-links a.active {
+            background: #3498db;
+        }
+        .hamburger {
+            display: none;
+            font-size: 24px;
+            color: #ecf0f1;
+            cursor: pointer;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 80px auto 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+        .stat-box {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .stat-box h3 {
+            color: #3498db;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .stat-box p {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        /* كارت الإحصائيات النهائية */
+        .final-stats-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .final-stat-box {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .final-stat-box h3 {
+            color: #3498db;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .final-stat-box .total {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .final-stat-box .details {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.5;
+        }
+        /* إخفاء المحتوى افتراضيًا */
+        .hidden {
+            display: none;
+        }
+        /* أزرار التحكم */
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .control-btn {
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .control-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .control-btn.active {
+            background: #2ecc71;
+        }
+        .control-btn i {
+            font-size: 18px;
+        }
+        /* نافذة تسجيل الدخول */
+        .login-modal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-modal-content {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+            margin-top: 80px;
+        }
+        .login-modal-content h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        #loginForm {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #loginForm label {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        #loginForm input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #loginForm button {
+            background: #3498db;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        #loginForm button:hover {
+            background: #2980b9;
+        }
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .navbar-content {
+                padding: 15px;
+            }
+            .navbar .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: #2c3e50;
+                width: 100%;
+                padding: 20px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }
+            .navbar .nav-links.active {
+                display: flex;
+            }
+            .navbar .nav-links a {
+                font-size: 16px;
+                padding: 10px;
+                text-align: center;
+            }
+            .hamburger {
+                display: block;
+            }
+            .container {
+                margin: 70px 10px 10px;
+                padding: 20px;
+            }
+            h2 {
+                font-size: 24px;
+            }
+            .control-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .control-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            .final-stat-box {
+                padding: 20px;
+            }
+            .final-stat-box .total {
+                font-size: 24px;
+            }
+            .final-stat-box .details {
+                font-size: 12px;
+            }
+        }
+        .footer {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px 0;
+            text-align: center;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px;
+        }
+        .footer-content p {
+            font-size: 16px;
+            margin: 0;
+        }
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+        .social-icons a {
+            color: #ecf0f1;
+            font-size: 20px;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: #3498db;
+            transform: scale(1.2);
+        }
+
+
+        .stats-table-container {
+            margin: 30px 0 15px 0;
+            display: flex;
+            justify-content: center;
+        }
+        .stats-table {
+            direction: rtl;
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 750px;
+            background: #fff;
+            box-shadow: 0 4px 16px #d6e3f6a1;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .stats-table th, .stats-table td {
+            border: 1px solid #e1e1e1;
+            padding: 13px 10px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .stats-table th {
+            background: #3498db;
+            color: #fff;
+            font-size: 17px;
+            font-weight: bold;
+        }
+        .stats-table tr:nth-child(even) {
+            background: #f7fafd;
+        }
+        .stats-table tr:nth-child(odd) {
+            background: #fff;
+        }
+        .print-table-btn {
+            margin: 0 auto 20px auto;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: #e67e22;
+            color: #fff;
+            padding: 11px 26px;
+            border: none;
+            border-radius: 8px;
+            font-size: 17px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .print-table-btn:hover {
+            background: #d35400;
+            transform: translateY(-2px) scale(1.04);
+        }
+        @media (max-width: 900px) {
+            .stats-table th, .stats-table td { font-size: 14px; padding: 10px 5px; }
+            .stats-table-container { max-width: 100vw; overflow-x: auto; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+    <!-- نافذة تسجيل الدخول -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-modal-content">
+            <h3>تسجيل الدخول</h3>
+            <form id="loginForm">
+                <label>اسم المستخدم:</label>
+                <input type="text" id="username" required>
+                <label>كلمة المرور:</label>
+                <input type="password" id="password" required>
+                <button type="submit">تسجيل الدخول</button>
+            </form>
+            <p class="error-message" id="errorMessage">اسم المستخدم أو كلمة المرور غير صحيحة!</p>
+        </div>
+    </div>
+
+    <!-- ناف بار -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+               <h1 style="color: rgb(255, 170, 0);">الليثــــي برنــت</h1>
+            </div>
+            <div class="hamburger">☰</div>
+            <div class="nav-links">
+                <a href="./index.html">حجز طباعة</a>
+                <a href="./search.html">استعلام عن حجز</a>
+                <a href="./history.html">سجل الحجوزات</a>
+                <a href="./stats.html" class="active">الإحصائيات</a>
+                <a href="./manage_teachers.html">المعلمين</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container hidden" id="mainContent">
+        <h2>إحصائيات الحجوزات</h2>
+        <!-- أزرار التحكم -->
+        <div class="control-buttons">
+            <button class="control-btn" id="studentStatsBtn" onclick="toggleStudentStats()">
+                <i class="fas fa-user-graduate"></i> إحصائيات الطلبة
+            </button>
+            <button class="control-btn" id="teacherStatsBtn" onclick="toggleTeacherStats()">
+                <i class="fas fa-chalkboard-teacher"></i> إحصائيات المعلمين
+            </button>
+            <button class="control-btn" id="finalStatsBtn" onclick="toggleFinalStats()">
+                <i class="fas fa-chart-line"></i> الإحصائيات النهائية
+            </button>
+        </div>
+
+            <!-- جدول الإحصائيات -->
+        <div class="stats-table-container" id="statsTableContainer">
+            <table class="stats-table" id="statsTable">
+                <thead>
+                    <tr>
+                        <th>الفئة</th>
+                        <th>عدد الحجوزات الكلي</th>
+                        <th>عدد الإيصالات المطبوعة</th>
+                        <th>عدد الإيصالات غير المطبوعة</th>
+                        <th>إجمالي المبيعات المطبوعة</th>
+                        <th>إجمالي المبيعات غير المطبوعة</th>
+                        <th>إجمالي المبيعات الكلي</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>الطلبة</td>
+                        <td id="tableStudentTotalBookings">0</td>
+                        <td id="tableStudentPrintedCount">0</td>
+                        <td id="tableStudentNotPrintedCount">0</td>
+                        <td id="tableStudentPrintedSales">0 جنيه</td>
+                        <td id="tableStudentNotPrintedSales">0 جنيه</td>
+                        <td id="tableStudentTotalSales">0 جنيه</td>
+                    </tr>
+                    <tr>
+                        <td>المعلمين</td>
+                        <td id="tableTeacherTotalBookings">0</td>
+                        <td id="tableTeacherPrintedCount">0</td>
+                        <td id="tableTeacherNotPrintedCount">0</td>
+                        <td id="tableTeacherPrintedSales">0 جنيه</td>
+                        <td id="tableTeacherNotPrintedSales">0 جنيه</td>
+                        <td id="tableTeacherTotalSales">0 جنيه</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:bold;color:#218c5a;">الإجمالي</td>
+                        <td id="tableFinalTotalBookings" style="font-weight:bold"></td>
+                        <td id="tableFinalPrintedCount" style="font-weight:bold"></td>
+                        <td id="tableFinalNotPrintedCount" style="font-weight:bold"></td>
+                        <td id="tableFinalPrintedSales" style="font-weight:bold"></td>
+                        <td id="tableFinalNotPrintedSales" style="font-weight:bold"></td>
+                        <td id="tableFinalTotalSales" style="font-weight:bold"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <button class="print-table-btn" id="printTableBtn">
+    <i class="fa fa-print"></i>
+    طباعة الجدول
+</button>
+
+        <!-- إحصائيات الطلبة -->
+        <div class="stats-container hidden" id="studentStats">
+            <div class="stat-box">
+                <h3>عدد الحجوزات الكلي</h3>
+                <p id="studentTotalBookings">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>عدد الإيصالات المطبوعة</h3>
+                <p id="studentPrintedCount">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>عدد الإيصالات غير المطبوعة</h3>
+                <p id="studentNotPrintedCount">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>إجمالي المبيعات المطبوعة</h3>
+                <p id="studentPrintedSales">0 جنيه</p>
+            </div>
+            <div class="stat-box">
+                <h3>إجمالي المبيعات غير المطبوعة</h3>
+                <p id="studentNotPrintedSales">0 جنيه</p>
+            </div>
+            <div class="stat-box">
+                <h3>إجمالي المبيعات الكلي</h3>
+                <p id="studentTotalSales">0 جنيه</p>
+            </div>
+        </div>
+        <!-- إحصائيات المعلمين -->
+        <div class="stats-container hidden" id="teacherStats">
+            <div class="stat-box">
+                <h3>عدد الحجوزات الكلي</h3>
+                <p id="teacherTotalBookings">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>عدد الإيصالات المطبوعة</h3>
+                <p id="teacherPrintedCount">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>عدد الإيصالات غير المطبوعة</h3>
+                <p id="teacherNotPrintedCount">0</p>
+            </div>
+            <div class="stat-box">
+                <h3>إجمالي المبيعات المطبوعة</h3>
+                <p id="teacherPrintedSales">0 جنيه</p>
+            </div>
+            <div class="stat-box">
+                <h3>إجمالي المبيعات غير المطبوعة</h3>
+                <p id="teacherNotPrintedSales">0 جنيه</p>
+            </div>
+            <div class="stat-box">
+                <h3>إجمالي المبيعات الكلي</h3>
+                <p id="teacherTotalSales">0 جنيه</p>
+            </div>
+        </div>
+        <!-- الإحصائيات النهائية -->
+        <div class="final-stats-container hidden" id="finalStats">
+            <div class="final-stat-box">
+                <h3>إجمالي المبيعات الكلي</h3>
+                <p class="total" id="finalTotalSales">0 جنيه</p>
+                <p class="details">
+                    الطلبة: <span id="finalStudentSales">0 جنيه</span><br>
+                    المعلمين: <span id="finalTeacherSales">0 جنيه</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer hidden" id="footer">
+        <div class="footer-content">
+            <p>جميع الحقوق محفوظة © 2025 Ziad Hagagy</p>
+            <div class="social-icons">
+                <a href="https://www.facebook.com/ZiadHassaann" target="_blank" aria-label="فيسبوك">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://wa.me/201027888008" target="_blank" aria-label="واتساب">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jsPDF & autoTable لطباعة الجدول -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-arabic/dist/jspdf-arabic.min.js"></script>
+    <script>
+        // إعداد Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyi_wxwTK0ywftlnjAWXKJ3RJN6RMeb1M",
+            authDomain: "booking-books-4ebd7.firebaseapp.com",
+            databaseURL: "https://booking-books-4ebd7-default-rtdb.firebaseio.com",
+            projectId: "booking-books-4ebd7",
+            storageBucket: "booking-books-4ebd7.firebasestorage.app",
+            messagingSenderId: "1001203182166",
+            appId: "1:1001203182166:web:2ba3c295bde10628e1e9f7"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const validUsername = "admin";
+        const validPassword = "123456";
+
+        let studentTotalSales = 0;
+        let teacherTotalSales = 0;
+        let studentData = {};
+        let teacherData = {};
+
+        window.onload = function() {
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+
+            if (isLoggedIn === 'true') {
+                showContent();
+                loadStats();
+            } else {
+                document.getElementById('loginModal').style.display = 'flex';
+            }
+        };
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            if (username === validUsername && password === validPassword) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                showContent();
+                loadStats();
+            } else {
+                errorMessage.style.display = 'block';
+            }
+        });
+
+        function showContent() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('mainContent').classList.remove('hidden');
+            document.getElementById('footer').classList.remove('hidden');
+        }
+
+        function loadStats() {
+            // الطلبة
+            database.ref('bookings').on('value', (snapshot) => {
+                let totalBookings = 0, printedCount = 0, notPrintedCount = 0;
+                let printedSales = 0, notPrintedSales = 0;
+                studentTotalSales = 0;
+
+                if (snapshot.exists()) {
+                    snapshot.forEach(childSnapshot => {
+                        childSnapshot.forEach(subSnapshot => {
+                            totalBookings++;
+                            const data = subSnapshot.val();
+                            const price = parseFloat(data.totalPrice || 0);
+                            studentTotalSales += price;
+
+                            if (data.isPrinted) {
+                                printedCount++;
+                                printedSales += price;
+                            } else {
+                                notPrintedCount++;
+                                notPrintedSales += price;
+                            }
+                        });
+                    });
+                }
+
+                studentData = {
+                    totalBookings,
+                    printedCount,
+                    notPrintedCount,
+                    printedSales,
+                    notPrintedSales,
+                    totalSales: studentTotalSales
+                };
+
+                // صناديق الإحصائيات
+                document.getElementById('studentTotalBookings').textContent = totalBookings;
+                document.getElementById('studentPrintedCount').textContent = printedCount;
+                document.getElementById('studentNotPrintedCount').textContent = notPrintedCount;
+                document.getElementById('studentPrintedSales').textContent = printedSales.toFixed(2) + ' جنيه';
+                document.getElementById('studentNotPrintedSales').textContent = notPrintedSales.toFixed(2) + ' جنيه';
+                document.getElementById('studentTotalSales').textContent = studentTotalSales.toFixed(2) + ' جنيه';
+                // الجدول
+                document.getElementById('tableStudentTotalBookings').textContent = totalBookings;
+                document.getElementById('tableStudentPrintedCount').textContent = printedCount;
+                document.getElementById('tableStudentNotPrintedCount').textContent = notPrintedCount;
+                document.getElementById('tableStudentPrintedSales').textContent = printedSales.toFixed(2) + ' جنيه';
+                document.getElementById('tableStudentNotPrintedSales').textContent = notPrintedSales.toFixed(2) + ' جنيه';
+                document.getElementById('tableStudentTotalSales').textContent = studentTotalSales.toFixed(2) + ' جنيه';
+
+                updateFinalStats();
+            });
+
+            // المعلمين
+            database.ref('teacherBookings').on('value', (snapshot) => {
+                let totalBookings = 0, printedCount = 0, notPrintedCount = 0;
+                let printedSales = 0, notPrintedSales = 0;
+                teacherTotalSales = 0;
+
+                if (snapshot.exists()) {
+                    snapshot.forEach(teacherSnapshot => {
+                        teacherSnapshot.forEach(subSnapshot => {
+                            totalBookings++;
+                            const data = subSnapshot.val();
+                            const price = parseFloat(data.totalPrice || 0);
+                            teacherTotalSales += price;
+
+                            if (data.isPrinted) {
+                                printedCount++;
+                                printedSales += price;
+                            } else {
+                                notPrintedCount++;
+                                notPrintedSales += price;
+                            }
+                        });
+                    });
+                }
+
+                teacherData = {
+                    totalBookings,
+                    printedCount,
+                    notPrintedCount,
+                    printedSales,
+                    notPrintedSales,
+                    totalSales: teacherTotalSales
+                };
+
+                // صناديق الإحصائيات
+                document.getElementById('teacherTotalBookings').textContent = totalBookings;
+                document.getElementById('teacherPrintedCount').textContent = printedCount;
+                document.getElementById('teacherNotPrintedCount').textContent = notPrintedCount;
+                document.getElementById('teacherPrintedSales').textContent = printedSales.toFixed(2) + ' جنيه';
+                document.getElementById('teacherNotPrintedSales').textContent = notPrintedSales.toFixed(2) + ' جنيه';
+                document.getElementById('teacherTotalSales').textContent = teacherTotalSales.toFixed(2) + ' جنيه';
+                // الجدول
+                document.getElementById('tableTeacherTotalBookings').textContent = totalBookings;
+                document.getElementById('tableTeacherPrintedCount').textContent = printedCount;
+                document.getElementById('tableTeacherNotPrintedCount').textContent = notPrintedCount;
+                document.getElementById('tableTeacherPrintedSales').textContent = printedSales.toFixed(2) + ' جنيه';
+                document.getElementById('tableTeacherNotPrintedSales').textContent = notPrintedSales.toFixed(2) + ' جنيه';
+                document.getElementById('tableTeacherTotalSales').textContent = teacherTotalSales.toFixed(2) + ' جنيه';
+
+                updateFinalStats();
+            });
+        }
+
+        function updateFinalStats() {
+            const finalTotalSales = studentTotalSales + teacherTotalSales;
+            // صناديق الإحصائيات
+            document.getElementById('finalTotalSales').textContent = finalTotalSales.toFixed(2) + ' جنيه';
+            document.getElementById('finalStudentSales').textContent = studentTotalSales.toFixed(2) + ' جنيه';
+            document.getElementById('finalTeacherSales').textContent = teacherTotalSales.toFixed(2) + ' جنيه';
+            // الجدول
+            document.getElementById('tableFinalTotalBookings').textContent = 
+                (studentData.totalBookings || 0) + (teacherData.totalBookings || 0);
+            document.getElementById('tableFinalPrintedCount').textContent =
+                (studentData.printedCount || 0) + (teacherData.printedCount || 0);
+            document.getElementById('tableFinalNotPrintedCount').textContent =
+                (studentData.notPrintedCount || 0) + (teacherData.notPrintedCount || 0);
+            document.getElementById('tableFinalPrintedSales').textContent =
+                ((studentData.printedSales || 0) + (teacherData.printedSales || 0)).toFixed(2) + " جنيه";
+            document.getElementById('tableFinalNotPrintedSales').textContent =
+                ((studentData.notPrintedSales || 0) + (teacherData.notPrintedSales || 0)).toFixed(2) + " جنيه";
+            document.getElementById('tableFinalTotalSales').textContent =
+                ((studentData.totalSales || 0) + (teacherData.totalSales || 0)).toFixed(2) + " جنيه";
+        }
+
+        // دوال التحكم في إظهار/إخفاء الأقسام
+        function toggleStudentStats() {
+            const studentStats = document.getElementById('studentStats');
+            const teacherStats = document.getElementById('teacherStats');
+            const finalStats = document.getElementById('finalStats');
+            const studentBtn = document.getElementById('studentStatsBtn');
+            const teacherBtn = document.getElementById('teacherStatsBtn');
+            const finalBtn = document.getElementById('finalStatsBtn');
+            if (!studentStats.classList.contains('hidden')) {
+                studentStats.classList.add('hidden');
+                studentBtn.classList.remove('active');
+            } else {
+                studentStats.classList.remove('hidden');
+                teacherStats.classList.add('hidden');
+                finalStats.classList.add('hidden');
+                studentBtn.classList.add('active');
+                teacherBtn.classList.remove('active');
+                finalBtn.classList.remove('active');
+            }
+        }
+        function toggleTeacherStats() {
+            const studentStats = document.getElementById('studentStats');
+            const teacherStats = document.getElementById('teacherStats');
+            const finalStats = document.getElementById('finalStats');
+            const studentBtn = document.getElementById('studentStatsBtn');
+            const teacherBtn = document.getElementById('teacherStatsBtn');
+            const finalBtn = document.getElementById('finalStatsBtn');
+            if (!teacherStats.classList.contains('hidden')) {
+                teacherStats.classList.add('hidden');
+                teacherBtn.classList.remove('active');
+            } else {
+                studentStats.classList.add('hidden');
+                teacherStats.classList.remove('hidden');
+                finalStats.classList.add('hidden');
+                studentBtn.classList.remove('active');
+                teacherBtn.classList.add('active');
+                finalBtn.classList.remove('active');
+            }
+        }
+        function toggleFinalStats() {
+            const studentStats = document.getElementById('studentStats');
+            const teacherStats = document.getElementById('teacherStats');
+            const finalStats = document.getElementById('finalStats');
+            const studentBtn = document.getElementById('studentStatsBtn');
+            const teacherBtn = document.getElementById('teacherStatsBtn');
+            const finalBtn = document.getElementById('finalStatsBtn');
+            if (!finalStats.classList.contains('hidden')) {
+                finalStats.classList.add('hidden');
+                finalBtn.classList.remove('active');
+            } else {
+                studentStats.classList.add('hidden');
+                teacherStats.classList.add('hidden');
+                finalStats.classList.remove('hidden');
+                studentBtn.classList.remove('active');
+                teacherBtn.classList.remove('active');
+                finalBtn.classList.add('active');
+            }
+        }
+
+      
+    
+        // الهامبرغر
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // إعادة تعيين حالة تسجيل الدخول عند التنقل بين الصفحات
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function() {
+                sessionStorage.removeItem('isLoggedIn');
+            });
+        });
+
+        // تعطيل الزر الأيمن
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+        });
+
+        // تعطيل اختصارات F12 و Ctrl+Shift+I و Ctrl+Shift+J و Ctrl+U
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "F12" || 
+                (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) || 
+                (e.ctrlKey && e.key === "U")) {
+                e.preventDefault();
+            }
+        });
+    </script>
+
+    <script>
+        document.getElementById("printTableBtn").addEventListener("click", function () {
+    var printContents = document.getElementById("statsTableContainer").innerHTML;
+    var originalContents = document.body.innerHTML;
+
+    // فتح نافذة طباعة مؤقتة
+    var printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write('<html><head><title>طباعة الجدول</title>');
+    // إضافة تنسيقات للطباعة (لو عندك CSS خاص بالطباعة)
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; direction: rtl; text-align: center; }');
+    printWindow.document.write('table { width: 100%; border-collapse: collapse; margin-top: 20px; }');
+    printWindow.document.write('th, td { border: 1px solid #000; padding: 10px; }');
+    printWindow.document.write('th { background-color: #f2f2f2; }');
+    printWindow.document.write('</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(printContents);
+    printWindow.document.write('</body></html>');
+
+    printWindow.document.close();
+    printWindow.focus();
+
+    // أمر الطباعة
+    printWindow.print();
+    
+    // إغلاق نافذة الطباعة بعد الانتهاء
+    printWindow.close();
+});
+
+    </script>
+
+</body>
+</html>

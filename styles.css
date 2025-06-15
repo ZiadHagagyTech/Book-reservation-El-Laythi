@@ -1,0 +1,314 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: 'Tajawal', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+}
+/* ناف بار */
+.navbar {
+    background: #2c3e50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+.navbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 20px;
+}
+.navbar .logo img {
+    height: 50px;
+}
+.navbar .nav-links {
+    display: flex;
+    justify-content: center; /* توسيط الروابط */
+    flex-grow: 1; /* جعل الروابط تأخذ المساحة المتبقية */
+    gap: 30px;
+}
+.navbar .nav-links a {
+    color: #ecf0f1;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+.navbar .nav-links a:hover {
+    background: #3498db;
+    color: #fff;
+    transform: scale(1.05);
+}
+.navbar .nav-links a.active {
+    background: #3498db;
+}
+.hamburger {
+    display: none;
+    font-size: 24px;
+    color: #ecf0f1;
+    cursor: pointer;
+}
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    transition: all 0.3s ease;
+}
+h2 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: 700;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #34495e;
+    font-weight: 600;
+}
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ecf0f1;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+input:focus, select:focus, textarea:focus {
+    border-color: #3498db;
+    outline: none;
+}
+input[readonly] {
+    background: #f9f9f9;
+    cursor: not-allowed;
+}
+textarea {
+    height: 120px;
+    resize: vertical;
+}
+button {
+    background: #3498db;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: block;
+    margin: 20px auto;
+}
+button:hover {
+    background: #2980b9;
+}
+#receipt {
+    display: none;
+    max-width: 700px;
+    margin: 30px auto;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    border-top: 5px solid #3498db;
+}
+.receipt-copy {
+    padding: 20px;
+    background: #fff;
+    position: relative;
+    border: 2px solid #ecf0f1;
+    border-radius: 10px;
+}
+.receipt-copy h1 {
+    text-align: center;
+    color: #e74c3c;
+    font-size: 28px;
+    margin-bottom: 15px;
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+.receipt-copy h2 {
+    color: #3498db;
+    font-size: 24px;
+    margin-bottom: 15px;
+    border-bottom: 2px dashed #3498db;
+    padding-bottom: 8px;
+    text-align: center;
+}
+.receipt-copy p {
+    margin: 10px 0;
+    font-size: 16px;
+    color: #2c3e50;
+}
+.receipt-copy strong {
+    color: #e67e22;
+    font-weight: 700;
+}
+.receipt-copy .receiptBooks {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 8px;
+    white-space: pre-wrap;
+    font-size: 15px;
+    color: #7f8c8d;
+    border-left: 4px solid #3498db;
+}
+#printBtn {
+    background: #e74c3c;
+    margin-top: 30px;
+}
+#printBtn:hover {
+    background: #c0392b;
+}
+/* تصميم متجاوب */
+@media (max-width: 768px) {
+    .navbar-content {
+        padding: 15px;
+    }
+    .navbar .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: #2c3e50;
+        width: 100%;
+        padding: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .navbar .nav-links.active {
+        display: flex;
+    }
+    .navbar .nav-links a {
+        font-size: 16px;
+        padding: 10px;
+        text-align: center;
+    }
+    .hamburger {
+        display: block;
+    }
+    .container {
+        margin: 10px;
+        padding: 20px;
+    }
+    h2 {
+        font-size: 24px;
+    }
+    input, select, textarea {
+        font-size: 14px;
+        padding: 10px;
+    }
+    button {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
+    #receipt {
+        margin: 10px;
+        padding: 15px;
+    }
+    .receipt-copy h1 {
+        font-size: 24px;
+    }
+    .receipt-copy h2 {
+        font-size: 20px;
+    }
+    .receipt-copy p {
+        font-size: 14px;
+    }
+    .receipt-copy .receiptBooks {
+        font-size: 13px;
+    }
+}
+@media print {
+    body {
+        background: none;
+    }
+    .navbar, .container, #printBtn {
+        display: none;
+    }
+    #receipt {
+        display: block !important;
+        box-shadow: none;
+        border: none;
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+    }
+    .receipt-copy {
+        width: 100%;
+        border: 1px solid #000;
+        page-break-inside: avoid;
+    }
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+    .receipt-copy h1 { color: #e74c3c !important; }
+    .receipt-copy h2 { color: #3498db !important; }
+    .receipt-copy strong { color: #e67e22 !important; }
+    .receipt-copy .receiptBooks { border-left: 4px solid #3498db !important; }
+}
+
+
+.footer {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 20px 0;
+    text-align: center;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column; /* جعل العناصر عمودية */
+    align-items: center; /* محاذاة العناصر في المنتصف أفقيًا */
+    gap: 10px; /* مسافة بين النص والأيقونات */
+    padding: 0 20px;
+}
+
+.footer-content p {
+    font-size: 16px;
+    margin: 0;
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.social-icons a {
+    color: #ecf0f1;
+    font-size: 20px;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.social-icons a:hover {
+    color: #3498db;
+    transform: scale(1.2);
+}

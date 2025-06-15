@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استعلام عن الحجز</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        /* ناف بار */
+        .navbar {
+            background: #2c3e50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+        }
+        .navbar .logo img {
+            height: 50px;
+        }
+        .navbar .nav-links {
+            display: flex;
+            justify-content: center; /* توسيط الروابط */
+            flex-grow: 1; /* جعل الروابط تأخذ المساحة المتبقية */
+            gap: 30px;
+        }
+        .navbar .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .navbar .nav-links a:hover {
+            background: #3498db;
+            color: #fff;
+            transform: scale(1.05);
+        }
+        .navbar .nav-links a.active {
+            background: #3498db;
+        }
+        .hamburger {
+            display: none;
+            font-size: 24px;
+            color: #ecf0f1;
+            cursor: pointer;
+        }
+        .container {
+            max-width: 700px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            display: block;
+            margin: 20px auto;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        #employeeReceipts {
+            display: none;
+            max-width: 700px;
+            margin: 30px auto;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            border-top: 5px solid #3498db;
+        }
+        .receipt-copy {
+            padding: 20px;
+            background: #fff;
+            position: relative;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .receipt-copy h1 {
+            text-align: center;
+            color: #e74c3c;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .receipt-copy h2 {
+            color: #3498db;
+            font-size: 24px;
+            margin-bottom: 15px;
+            border-bottom: 2px dashed #3498db;
+            padding-bottom: 8px;
+            text-align: center;
+        }
+        .receipt-copy p {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .receipt-copy strong {
+            color: #e67e22;
+            font-weight: 700;
+        }
+        .receipt-copy .receiptBooks {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 8px;
+            white-space: pre-wrap;
+            font-size: 15px;
+            color: #7f8c8d;
+            border-left: 4px solid #3498db;
+        }
+        .print-status {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 12px 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .print-status.printed {
+            color: #2ecc71;
+        }
+        .print-status.not-printed {
+            color: #e74c3c;
+        }
+        #printBtn {
+            background: #e74c3c;
+            margin-top: 30px;
+        }
+        #printBtn:hover {
+            background: #c0392b;
+        }
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .navbar-content {
+                padding: 15px;
+            }
+            .navbar .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: #2c3e50;
+                width: 100%;
+                padding: 20px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }
+            .navbar .nav-links.active {
+                display: flex;
+            }
+            .navbar .nav-links a {
+                font-size: 16px;
+                padding: 10px;
+                text-align: center;
+            }
+            .hamburger {
+                display: block;
+            }
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            h2 {
+                font-size: 24px;
+            }
+            input {
+                font-size: 14px;
+                padding: 10px;
+            }
+            button {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+            #employeeReceipts {
+                margin: 10px;
+                padding: 15px;
+            }
+            .receipt-copy h1 {
+                font-size: 24px;
+            }
+            .receipt-copy h2 {
+                font-size: 20px;
+            }
+            .receipt-copy p {
+                font-size: 14px;
+            }
+            .receipt-copy .receiptBooks {
+                font-size: 13px;
+            }
+            .print-status {
+                font-size: 15px;
+            }
+        }
+        @media print {
+            body {
+                background: none;
+            }
+            .navbar, .container, #printBtn {
+                display: none;
+            }
+            #employeeReceipts {
+                display: block !important;
+                box-shadow: none;
+                border: none;
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+                padding: 0;
+            }
+            .receipt-copy {
+                width: 100%;
+                border: 1px solid #000;
+                page-break-inside: avoid;
+            }
+            @page {
+                size: A4;
+                margin: 10mm;
+            }
+            .receipt-copy h1 { color: #e74c3c !important; }
+            .receipt-copy h2 { color: #3498db !important; }
+            .receipt-copy strong { color: #e67e22 !important; }
+            .receipt-copy .receiptBooks { border-left: 4px solid #3498db !important; }
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px 0;
+            text-align: center;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column; /* جعل العناصر عمودية */
+            align-items: center; /* محاذاة العناصر في المنتصف أفقيًا */
+            gap: 10px; /* مسافة بين النص والأيقونات */
+            padding: 0 20px;
+        }
+
+        .footer-content p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icons a {
+            color: #ecf0f1;
+            font-size: 20px;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            color: #3498db;
+            transform: scale(1.2);
+        }
+
+
+
+        .print-status-bottom {
+    margin: 32px auto 0 auto;
+    padding: 10px 0 8px 0;
+    text-align: center;
+    font-size: 15.5px;
+    font-weight: 700;
+    border-radius: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 250px;
+    min-width: 180px;
+    letter-spacing: 0.5px;
+    gap: 10px;
+    box-shadow: 0 4px 16px 0 rgba(44, 62, 80, 0.13);
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    border: 0;
+    top: 0;
+}
+.print-status-bottom.printed {
+    color: #fff;
+    background: linear-gradient(90deg, #1abc9c 25%, #16a085 80%);
+    box-shadow: 0 2px 12px 0 rgba(39, 174, 96, 0.13);
+    border: 1.5px solid #16a085;
+    animation: pulseGreen 2.2s infinite;
+}
+.print-status-bottom.not-printed {
+    color: #fff;
+    background: linear-gradient(90deg, #e74c3c 25%, #c0392b 80%);
+    box-shadow: 0 2px 12px 0 rgba(231, 76, 60, 0.10);
+    border: 1.5px solid #c0392b;
+    animation: pulseRed 2.2s infinite;
+}
+@keyframes pulseGreen {
+    0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.23);}
+    70% { box-shadow: 0 0 0 8px rgba(39, 174, 96, 0);}
+    100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0);}
+}
+@keyframes pulseRed {
+    0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.21);}
+    70% { box-shadow: 0 0 0 8px rgba(231, 76, 60, 0);}
+    100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);}
+}
+.print-status-bottom i {
+    font-size: 19px;
+    margin-left: 5px;
+    filter: drop-shadow(0px 2px 1.5px rgba(44, 62, 80, 0.08));
+}
+.print-status-bottom .status-text {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 15.5px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-shadow: 1px 2px 10px rgba(0,0,0,0.05);
+}
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK (إصدار 8.10.1 متوافق مع IIFE) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+    <!-- ناف بار -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <h1 style="color: rgb(255, 170, 0);">الليثــــي برنــت</h1>
+            </div>
+            <div class="hamburger">☰</div>
+            <div class="nav-links">
+                <a href="./index.html">حجز طباعة</a>
+                <a href="./search.html" class="active">استعلام عن حجز</a>
+                <a href="./history.html">سجل الحجوزات</a>
+                <a href="./stats.html">الإحصائيات</a>
+                <a href="./manage_teachers.html">المعلمين</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>استعلام عن الحجز</h2>
+        <div class="form-group">
+            <label>أدخل الاسم الكامل</label>
+            <input type="text" id="searchName" required>
+        </div>
+        <button onclick="searchBooking()">بحث</button>
+    </div>
+
+    <div id="employeeReceipts">
+        <div id="receiptsContainer"></div>
+        <button id="printBtn" onclick="window.print()">طباعة الإيصالات</button>
+    </div>
+
+    <script>
+        // إعداد Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyi_wxwTK0ywftlnjAWXKJ3RJN6RMeb1M",
+            authDomain: "booking-books-4ebd7.firebaseapp.com",
+            databaseURL: "https://booking-books-4ebd7-default-rtdb.firebaseio.com",
+            projectId: "booking-books-4ebd7",
+            storageBucket: "booking-books-4ebd7.firebasestorage.app",
+            messagingSenderId: "1001203182166",
+            appId: "1:1001203182166:web:2ba3c295bde10628e1e9f7"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // دالة التطبيع
+        function normalizeNameForSearch(name) {
+            return name
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, '')
+                .replace(/[أإآ]/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/ى/g, 'ي');
+        }
+
+        // دالة المسافة الحرفية (Levenshtein Distance)
+        function levenshtein(a, b) {
+            if (a.length == 0) return b.length;
+            if (b.length == 0) return a.length;
+            var matrix = [];
+            var i;
+            for (i = 0; i <= b.length; i++) {
+                matrix[i] = [i];
+            }
+            var j;
+            for (j = 0; j <= a.length; j++) {
+                matrix[0][j] = j;
+            }
+            for (i = 1; i <= b.length; i++) {
+                for (j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1, // استبدال
+                            matrix[i][j - 1] + 1,     // إضافة
+                            matrix[i - 1][j] + 1      // حذف
+                        );
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        function searchBooking() {
+            const searchName = document.getElementById('searchName').value;
+            const receiptsDiv = document.getElementById('employeeReceipts');
+            const receiptsContainer = document.getElementById('receiptsContainer');
+
+            if (!searchName.trim()) {
+                alert("يرجى إدخال الاسم!");
+                return;
+            }
+
+            const normalizedSearchName = normalizeNameForSearch(searchName);
+
+            database.ref('bookings').once('value')
+            .then((snapshot) => {
+                receiptsDiv.style.display = 'none';
+                receiptsContainer.innerHTML = '';
+                let found = false;
+                let receipts = [];
+                let allNames = [];
+
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const cleanName = childSnapshot.key;
+                        const normalizedStoredName = normalizeNameForSearch(cleanName.replace(/_/g, ' '));
+                        allNames.push({ cleanName, normalizedStoredName, snapshot: childSnapshot });
+                    });
+
+                    // البحث الجزئي: اجمع كل الأسماء التي تحتوي على المدخل (وليس بالضرورة تطابق تام)
+                    let partialMatches = allNames.filter(obj => obj.normalizedStoredName.includes(normalizedSearchName));
+
+                    // إذا في نتائج جزئية، اعرضها كلها
+                    if (partialMatches.length > 0) {
+                        found = true;
+                        partialMatches.forEach(match => {
+                            match.snapshot.forEach((subSnapshot) => {
+                                const data = subSnapshot.val();
+                                receipts.push({
+                                    data: data,
+                                    timestamp: data.timestamp || 0,
+                                    displayName: match.cleanName.replace(/_/g, ' ')
+                                });
+                            });
+                        });
+
+                        // ترتيب الإيصالات من الأحدث إلى الأقدم
+                        receipts.sort((a, b) => b.timestamp - a.timestamp);
+
+                        receipts.forEach((receipt) => {
+                            const data = receipt.data;
+                            let printStatusHtml = '';
+                            if (data.isPrinted === true) {
+                                printStatusHtml = `
+                                    <div class="print-status-bottom printed">
+                                        <i class="fa fa-check-circle"></i>
+                                        <span class="status-text">تم طباعة هذا الإيصال بنجاح</span>
+                                    </div>
+                                `;
+                            } else {
+                                printStatusHtml = `
+                                    <div class="print-status-bottom not-printed">
+                                        <i class="fa fa-times-circle"></i>
+                                        <span class="status-text">لم يتم طباعة هذا الإيصال بعد</span>
+                                    </div>
+                                `;
+                            }
+
+                            // نسخة مطابقة لنسخة العميل (بدون سعر الورقة)، مع نوع التقفيل من قاعدة البيانات
+                            const receiptElement = document.createElement('div');
+                            receiptElement.className = 'receipt-copy';
+                            receiptElement.innerHTML = `
+                                <h1>شركة الليثي برنــت</h1>
+                                <h2>إيصال الحجز - نسخة الموظف</h2>
+                                <p><strong>الاسم:</strong> ${data.name}</p>
+                                <p><strong>الصف الدراسي:</strong> ${data.grade}</p>
+                                <p><strong>تاريخ الحجز:</strong> ${data.bookingDate}</p>
+                                <p><strong>تاريخ الاستلام:</strong> ${data.receiveDate}</p>
+                                <p><strong>المواصفات:</strong> ${data.specifications}</p>
+                                <p><strong>عدد الكتب:</strong> ${data.bookCount}</p>
+                                <p><strong>نوع التقفيل:</strong> ${data.bindingType ? data.bindingType : '<span style="color:#e67e22;">غير محدد</span>'}</p>
+                                <p><strong>أسماء الكتب:</strong></p>
+                                <div class="receiptBooks">${data.bookNames}</div>
+                                <p><strong>عدد الورق:</strong></p>
+                                <div>${Array.isArray(data.paperCounts) ? data.paperCounts.map((v,i)=>`عدد الورق للكتاب رقم ${i+1}: ${v}`).join('<br>') : ''}</div>
+                                <p><strong>إجمالى عدد الأوراق:</strong> ${data.totalPapers}</p>
+                                <p><strong>إجمالى السعر الكلى:</strong> ${data.totalPaperAmount} جنيه</p>
+                                ${printStatusHtml}
+                            `;
+                            receiptsContainer.appendChild(receiptElement);
+                        });
+
+                        receiptsDiv.style.display = 'block';
+
+                        // إضافة رسالة توضيحية إذا كان هناك أكثر من تطابق جزئي
+                        if (partialMatches.length > 1) {
+                            const msg = document.createElement('div');
+                            msg.style = "text-align:center;color:#2980b9;font-weight:bold;margin-bottom:15px;";
+                            msg.innerHTML = "تم عرض جميع النتائج التي تحتوي الاسم المدخل.";
+                            receiptsContainer.prepend(msg);
+                        }
+
+                        return; // لا تكمل للبحث بالتشابه إذا وجدت نتائج جزئية
+                    }
+
+                    // إذا لم يوجد أي تطابق جزئي، ارجع للبحث بأقرب اسم (Levenshtein)
+                    let minDist = 1000;
+                    let bestMatch = null;
+                    allNames.forEach(obj => {
+                        const dist = levenshtein(obj.normalizedStoredName, normalizedSearchName);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            bestMatch = obj;
+                        }
+                    });
+                    if (minDist <= 2 && bestMatch) {
+                        bestMatch.snapshot.forEach((subSnapshot) => {
+                            const data = subSnapshot.val();
+                            receipts.push({
+                                data: data,
+                                timestamp: data.timestamp || 0,
+                                displayName: bestMatch.cleanName.replace(/_/g, ' ')
+                            });
+                        });
+
+                        receipts.sort((a, b) => b.timestamp - a.timestamp);
+
+                        receipts.forEach((receipt) => {
+                            const data = receipt.data;
+                            let printStatusHtml = '';
+                            if (data.isPrinted === true) {
+                                printStatusHtml = `
+                                    <div class="print-status-bottom printed">
+                                        <i class="fa fa-check-circle"></i>
+                                        <span class="status-text">تم طباعة هذا الإيصال بنجاح</span>
+                                    </div>
+                                `;
+                            } else {
+                                printStatusHtml = `
+                                    <div class="print-status-bottom not-printed">
+                                        <i class="fa fa-times-circle"></i>
+                                        <span class="status-text">لم يتم طباعة هذا الإيصال بعد</span>
+                                    </div>
+                                `;
+                            }
+
+                            const receiptElement = document.createElement('div');
+                            receiptElement.className = 'receipt-copy';
+                            receiptElement.innerHTML = `
+                                <h1>شركة الليثي برنــت</h1>
+                                <h2>إيصال الحجز - نسخة الموظف</h2>
+                                <p><strong>الاسم:</strong> ${data.name}</p>
+                                <p><strong>الصف الدراسي:</strong> ${data.grade}</p>
+                                <p><strong>تاريخ الحجز:</strong> ${data.bookingDate}</p>
+                                <p><strong>تاريخ الاستلام:</strong> ${data.receiveDate}</p>
+                                <p><strong>المواصفات:</strong> ${data.specifications}</p>
+                                <p><strong>عدد الكتب:</strong> ${data.bookCount}</p>
+                                <p><strong>نوع التقفيل:</strong> ${data.bindingType ? data.bindingType : '<span style="color:#e67e22;">غير محدد</span>'}</p>
+                                <p><strong>أسماء الكتب:</strong></p>
+                                <div class="receiptBooks">${data.bookNames}</div>
+                                <p><strong>عدد الورق:</strong></p>
+                                <div>${Array.isArray(data.paperCounts) ? data.paperCounts.map((v,i)=>`عدد الورق للكتاب رقم ${i+1}: ${v}`).join('<br>') : ''}</div>
+                                <p><strong>إجمالى عدد الأوراق:</strong> ${data.totalPapers}</p>
+                                <p><strong>إجمالى السعر الكلى:</strong> ${data.totalPaperAmount} جنيه</p>
+                                ${printStatusHtml}
+                            `;
+                            receiptsContainer.appendChild(receiptElement);
+                        });
+
+                        receiptsDiv.style.display = 'block';
+
+                        const msg = document.createElement('div');
+                        msg.style = "text-align:center;color:#e67e22;font-weight:bold;margin-bottom:15px;";
+                        msg.innerHTML = "لم نجد تطابقاً جزئياً، تم عرض أقرب نتيجة باسم: <span style='color:#2980b9'>" + bestMatch.cleanName.replace(/_/g,' ') + "</span>";
+                        receiptsContainer.prepend(msg);
+                    } else {
+                        alert("لم يتم العثور على حجز بهذا الاسم أو حتى نتيجة مقاربة!");
+                    }
+                } else {
+                    alert("لا توجد حجوزات مسجلة!");
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert("حدث خطأ أثناء البحث!");
+            });
+        }
+
+        // قائمة الهامبرغر
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "F12" ||
+                (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
+                (e.ctrlKey && e.key === "U")) {
+                e.preventDefault();
+            }
+        });
+    </script>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <p>جميع الحقوق محفوظة © 2025 Ziad Hagagy</p>
+        <div class="social-icons">
+            <a href="https://www.facebook.com/ZiadHassaann" target="_blank" aria-label="فيسبوك">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://wa.me/201027888008" target="_blank" aria-label="واتساب">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

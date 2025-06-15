@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <title>إدارة المعلمين</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #2c3e50;
+        }
+        /* ناف بار */
+        .navbar {
+            background: #2c3e50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+        }
+        .navbar .logo img {
+            height: 50px;
+        }
+        .navbar .nav-links {
+            display: flex;
+            justify-content: center;
+            flex-grow: 1;
+            gap: 30px;
+        }
+        .navbar .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .navbar .nav-links a:hover {
+            background: #3498db;
+            color: #fff;
+            transform: scale(1.05);
+        }
+        .navbar .nav-links a.active {
+            background: #3498db;
+        }
+        .hamburger {
+            display: none;
+            font-size: 24px;
+            color: #ecf0f1;
+            cursor: pointer;
+        }
+        /* الكونتينر الرئيسي */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            position: relative;
+        }
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        /* أزرار التحكم */
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .control-btn {
+            background: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .control-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .control-btn i {
+            font-size: 18px;
+        }
+        /* نموذج إضافة معلم */
+        .add-teacher-form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        .add-teacher-form.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .add-teacher-form h3 {
+            color: #3498db;
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        #addTeacherForm {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        #addTeacherForm label {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        #addTeacherForm input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        #addTeacherForm input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        #addTeacherForm button {
+            background: #2ecc71;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        #addTeacherForm button:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        /* قسم عرض المعلمين */
+        .teachers-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        .teachers-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .search-bar {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .search-bar input {
+            padding: 12px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .search-bar input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .teachers-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .teacher-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .teacher-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        .teacher-card h4 {
+            color: #3498db;
+            font-size: 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .teacher-card h4 i {
+            color: #2ecc71;
+        }
+        .teacher-card p {
+            font-size: 14px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .teacher-card .stats {
+            margin: 10px 0;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+        .teacher-card .stats p {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+        .teacher-card .actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .teacher-card .view-btn {
+            background: #2ecc71;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .teacher-card .view-btn:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+        .teacher-card .delete-btn {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .teacher-card .delete-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .navbar-content {
+                padding: 15px;
+            }
+            .navbar .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: #2c3e50;
+                width: 100%;
+                padding: 20px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            }
+            .navbar .nav-links.active {
+                display: flex;
+            }
+            .navbar .nav-links a {
+                font-size: 16px;
+                padding: 10px;
+                text-align: center;
+            }
+            .hamburger {
+                display: block;
+            }
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            h2 {
+                font-size: 24px;
+            }
+            .control-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .control-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            .teacher-card h4 {
+                font-size: 18px;
+            }
+            .teacher-card p {
+                font-size: 12px;
+            }
+        }
+        .footer {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px 0;
+            text-align: center;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px;
+        }
+        .footer-content p {
+            font-size: 16px;
+            margin: 0;
+        }
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+        .social-icons a {
+            color: #ecf0f1;
+            font-size: 20px;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: #3498db;
+            transform: scale(1.2);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+    <!-- ناف بار -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <h1 style="color: rgb(255, 170, 0);">الليثــــي برنــت</h1>
+            </div>
+            <div class="hamburger">☰</div>
+            <div class="nav-links">
+                <a href="./index.html">حجز طباعة</a>
+                <a href="./search.html">استعلام عن حجز</a>
+                <a href="./history.html">سجل الحجوزات</a>
+                <a href="./stats.html">الإحصائيات</a>
+                <a href="./manage_teachers.html" class="active">المعلمين</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>إدارة المعلمين</h2>
+        <!-- أزرار التحكم -->
+        <div class="control-buttons">
+            <button class="control-btn" onclick="showAddTeacherForm()">
+                <i class="fas fa-plus"></i> إضافة معلم جديد
+            </button>
+            <button class="control-btn" onclick="showTeachersList()">
+                <i class="fas fa-users"></i> عرض جميع المعلمين
+            </button>
+        </div>
+        <!-- نموذج إضافة معلم -->
+        <div class="add-teacher-form" id="addTeacherSection">
+            <h3>إضافة معلم جديد</h3>
+            <form id="addTeacherForm">
+                <label>اسم المعلم:</label>
+                <input type="text" id="teacherName" required>
+                <label>رقم الهاتف:</label>
+                <input type="text" id="teacherPhone" required>
+                <button type="submit">إضافة المعلم</button>
+            </form>
+        </div>
+        <!-- قسم عرض المعلمين -->
+        <div class="teachers-section" id="teachersSection">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="ابحث عن معلم بالاسم..." onkeyup="searchTeachers()">
+            </div>
+            <div class="teachers-list" id="teachersList"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>جميع الحقوق محفوظة © 2025 Ziad Hagagy</p>
+            <div class="social-icons">
+                <a href="https://www.facebook.com/ZiadHassaann" target="_blank" aria-label="فيسبوك">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://wa.me/201027888008" target="_blank" aria-label="واتساب">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // إعداد Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyi_wxwTK0ywftlnjAWXKJ3RJN6RMeb1M",
+            authDomain: "booking-books-4ebd7.firebaseapp.com",
+            databaseURL: "https://booking-books-4ebd7-default-rtdb.firebaseio.com",
+            projectId: "booking-books-4ebd7",
+            storageBucket: "booking-books-4ebd7.firebasestorage.app",
+            messagingSenderId: "1001203182166",
+            appId: "1:1001203182166:web:2ba3c295bde10628e1e9f7"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // تحميل قائمة المعلمين
+        let allTeachers = [];
+        window.onload = function() {
+            loadTeachers();
+        };
+
+        function loadTeachers() {
+            database.ref('teachers').on('value', (snapshot) => {
+                allTeachers = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const teacherId = childSnapshot.key;
+                        const data = childSnapshot.val();
+                        allTeachers.push({
+                            id: teacherId,
+                            name: data.name,
+                            phone: data.phone,
+                            bookings: 0,
+                            printedBookings: 0,
+                            notPrintedBookings: 0,
+                            notes: 0
+                        });
+
+                        // جلب عدد الحجوزات وعدد المذكرات لكل معلم
+                        database.ref(`teacherBookings/${teacherId}`).once('value')
+                        .then((bookingSnapshot) => {
+                            let bookingsCount = 0;
+                            let printedCount = 0;
+                            let notPrintedCount = 0;
+                            let notesCount = 0;
+                            if (bookingSnapshot.exists()) {
+                                bookingSnapshot.forEach((subSnapshot) => {
+                                    bookingsCount++;
+                                    const bookingData = subSnapshot.val();
+                                    notesCount += parseInt(bookingData.noteCount || 0);
+                                    if (bookingData.isPrinted) {
+                                        printedCount++;
+                                    } else {
+                                        notPrintedCount++;
+                                    }
+                                });
+                            }
+                            const teacherIndex = allTeachers.findIndex(t => t.id === teacherId);
+                            if (teacherIndex !== -1) {
+                                allTeachers[teacherIndex].bookings = bookingsCount;
+                                allTeachers[teacherIndex].printedBookings = printedCount;
+                                allTeachers[teacherIndex].notPrintedBookings = notPrintedCount;
+                                allTeachers[teacherIndex].notes = notesCount;
+                            }
+                            displayTeachers(allTeachers);
+                        });
+                    });
+                } else {
+                    const teachersList = document.getElementById('teachersList');
+                    teachersList.innerHTML = '<p>لا توجد معلمين مسجلين!</p>';
+                }
+            });
+        }
+
+        function displayTeachers(teachers) {
+            const teachersList = document.getElementById('teachersList');
+            teachersList.innerHTML = '';
+
+            if (teachers.length > 0) {
+                teachers.forEach((teacher) => {
+                    const teacherCard = document.createElement('div');
+                    teacherCard.className = 'teacher-card';
+                    teacherCard.innerHTML = `
+                        <h4><i class="fas fa-chalkboard-teacher"></i> ${teacher.name}</h4>
+                        <p><strong>رقم الهاتف:</strong> ${teacher.phone}</p>
+                        <div class="stats">
+                            <p><strong>عدد الحجوزات الكلي:</strong> ${teacher.bookings}</p>
+                            <p><strong>عدد الحجوزات المطبوعة:</strong> ${teacher.printedBookings}</p>
+                            <p><strong>عدد الحجوزات غير المطبوعة:</strong> ${teacher.notPrintedBookings}</p>
+                            <p><strong>عدد المذكرات:</strong> ${teacher.notes}</p>
+                        </div>
+                        <div class="actions">
+                            <button class="view-btn" onclick="viewTeacher('${teacher.id}')">عرض الصفحة</button>
+                            <button class="delete-btn" onclick="deleteTeacher('${teacher.id}')">حذف</button>
+                        </div>
+                    `;
+                    teachersList.appendChild(teacherCard);
+                });
+            } else {
+                teachersList.innerHTML = '<p>لا توجد معلمين مطابقين للبحث!</p>';
+            }
+        }
+
+        function searchTeachers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredTeachers = allTeachers.filter(teacher => 
+                teacher.name.toLowerCase().includes(searchTerm)
+            );
+            displayTeachers(filteredTeachers);
+        }
+
+        // إضافة معلم جديد باستخدام الاسم كمعرف
+        document.getElementById('addTeacherForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const teacherName = document.getElementById('teacherName').value.trim();
+            const teacherPhone = document.getElementById('teacherPhone').value.trim();
+
+            // تحويل الاسم إلى صيغة صالحة (استبدال المسافات بـ _)
+            let teacherId = teacherName.replace(/\s+/g, '_');
+
+            // التحقق مما إذا كان الاسم موجودًا بالفعل
+            database.ref(`teachers/${teacherId}`).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    // إذا كان الاسم موجودًا، أضف رقمًا لتجنب التكرار
+                    let counter = 1;
+                    let newTeacherId = `${teacherId}_${counter}`;
+                    return checkAndIncrement(newTeacherId, teacherId, counter);
+                } else {
+                    return addTeacher(teacherId, teacherName, teacherPhone);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('حدث خطأ أثناء إضافة المعلم!');
+            });
+        });
+
+        function checkAndIncrement(newTeacherId, baseId, counter) {
+            return database.ref(`teachers/${newTeacherId}`).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    counter++;
+                    newTeacherId = `${baseId}_${counter}`;
+                    return checkAndIncrement(newTeacherId, baseId, counter);
+                } else {
+                    const teacherName = document.getElementById('teacherName').value.trim();
+                    const teacherPhone = document.getElementById('teacherPhone').value.trim();
+                    return addTeacher(newTeacherId, teacherName, teacherPhone);
+                }
+            });
+        }
+
+        function addTeacher(teacherId, teacherName, teacherPhone) {
+            const newTeacher = {
+                name: teacherName,
+                phone: teacherPhone
+            };
+
+            return database.ref(`teachers/${teacherId}`).set(newTeacher)
+            .then(() => {
+                alert('تم إضافة المعلم بنجاح!');
+                document.getElementById('addTeacherForm').reset();
+                document.getElementById('addTeacherSection').classList.remove('active');
+                showTeachersList();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('حدث خطأ أثناء إضافة المعلم!');
+            });
+        }
+
+        // عرض صفحة المعلم
+        function viewTeacher(teacherId) {
+            window.location.href = `teacher.html?teacherId=${encodeURIComponent(teacherId)}`;
+        }
+
+        // حذف معلم
+        function deleteTeacher(teacherId) {
+            database.ref(`teacherBookings/${teacherId}`).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const confirmDelete = confirm('هذا المعلم لديه حجوزات! هل أنت متأكد من حذفه؟ سيتم حذف جميع حجوزاته.');
+                    if (!confirmDelete) return;
+
+                    database.ref(`teacherBookings/${teacherId}`).remove()
+                    .then(() => {
+                        database.ref(`teachers/${teacherId}`).remove()
+                        .then(() => {
+                            alert('تم حذف المعلم وحجوزاته بنجاح!');
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                            alert('حدث خطأ أثناء حذف المعلم!');
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        alert('حدث خطأ أثناء حذف الحجوزات!');
+                    });
+                } else {
+                    const confirmDelete = confirm('هل أنت متأكد من حذف هذا المعلم؟');
+                    if (!confirmDelete) return;
+
+                    database.ref(`teachers/${teacherId}`).remove()
+                    .then(() => {
+                        alert('تم حذف المعلم بنجاح!');
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        alert('حدث خطأ أثناء حذف المعلم!');
+                    });
+                }
+            });
+        }
+
+        // دوال التحكم في إظهار/إخفاء الأقسام
+        function showAddTeacherForm() {
+            const addSection = document.getElementById('addTeacherSection');
+            const teachersSection = document.getElementById('teachersSection');
+            addSection.classList.add('active');
+            teachersSection.classList.remove('active');
+        }
+
+        function showTeachersList() {
+            const addSection = document.getElementById('addTeacherSection');
+            const teachersSection = document.getElementById('teachersSection');
+            addSection.classList.remove('active');
+            teachersSection.classList.add('active');
+            loadTeachers();
+        }
+
+        // معالجة قائمة الهامبرغر
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // تعطيل الزر الأيمن
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+        });
+
+        // تعطيل اختصارات F12 و Ctrl+Shift+I و Ctrl+Shift+J و Ctrl+U
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "F12" || 
+                (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) || 
+                (e.ctrlKey && e.key === "U")) {
+                e.preventDefault();
+            }
+        });
+
+
+
+
+
+        function addTeacher(teacherId, teacherName, teacherPhone) {
+    const newTeacher = {
+        name: teacherName,
+        phone: teacherPhone
+    };
+    return database.ref(`teachers/${teacherId}`).set(newTeacher)
+        .then(() => {
+            Toastify({
+                text: `تم إضافة المعلم ${teacherName} بنجاح!`,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#2ecc71"
+            }).showToast();
+            document.getElementById('addTeacherForm').reset();
+            document.getElementById('addTeacherSection').classList.remove('active');
+            showTeachersList();
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            Toastify({
+                text: "حدث خطأ أثناء إضافة المعلم!",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#e74c3c"
+            }).showToast();
+        });
+}
+
+    </script>
+</body>
+</html>

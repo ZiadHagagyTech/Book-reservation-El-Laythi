@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل الحجوزات</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            margin: 0%;
+        }
+        .navbar {
+            background: #2c3e50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+        }
+        .logo h1 {
+            color: rgb(255, 170, 0);
+            margin: 0;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            flex-grow: 1;
+            gap: 30px;
+        }
+        .nav-links a {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: #3498db;
+            color: #fff;
+            transform: scale(1.05);
+        }
+        .hamburger {
+            display: none;
+            font-size: 24px;
+            color: #ecf0f1;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .navbar-content { padding: 10px; }
+            .nav-links { 
+                display: none; 
+                flex-direction: column; 
+                position: absolute; 
+                top: 100%; 
+                right: 0; 
+                background: #2c3e50; 
+                width: 100%; 
+                padding: 20px; 
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            }
+            .nav-links.active { display: flex; }
+            .nav-links a { font-size: 16px; padding: 10px; text-align: center; }
+            .hamburger { display: block; }
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        /* تاريخ كبطاقات احترافية */
+        .dates-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 35px;
+            flex-direction: row;
+        }
+        .date-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(52,152,219,0.09), 0 1.5px 4px #cbe2f7;
+            color: #24496B;
+            min-width: 210px;
+            max-width: 250px;
+            min-height: 116px;
+            margin: 0;
+            position: relative;
+            padding: 22px 20px 17px 18px;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.18s, background 0.30s, border 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            border: 2.5px solid #e9ecef;
+            overflow: hidden;
+        }
+        .date-card.all-printed {
+            border: 2.5px solid #27ae60;
+            background: linear-gradient(135deg, #f0fff9 60%, #d4f7e5 100%);
+        }
+        .date-card.none-printed {
+            border: 2.5px solid #e74c3c;
+            background: linear-gradient(135deg, #fff0f0 60%, #fdeaea 100%);
+        }
+        .date-card.some-printed {
+            border: 2.5px solid #f1c40f;
+            background: linear-gradient(135deg, #fefaf2 60%, #fdf6e3 100%);
+        }
+        .date-card.active, .date-card:focus {
+            border: 2.5px solid #2980b9;
+            transform: scale(1.06) translateY(-4px);
+            box-shadow: 0 20px 50px 0 rgba(41, 128, 185, 0.16);
+            background: linear-gradient(135deg, #f1faff 60%, #d0e9ff 100%) !important;
+            color: #276678 !important;
+        }
+        .date-card-header {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            justify-content: space-between;
+        }
+        .date-card-date {
+            font-size: 1.18rem;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.07);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .date-card-day {
+            font-size: 0.99rem;
+            color: #2980b9;
+            margin-right: 7px;
+            font-weight: bold;
+            background: #eaf6fb;
+            border-radius: 12px;
+            padding: 2px 9px;
+            border: 1px solid #d0eaf9;
+            box-shadow: 0 2px 6px #d0eaf944;
+        }
+        .date-card-status {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-left: 7px;
+        }
+        .date-card-status .printed {
+            color: #27ae60;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            font-size: 1.05em;
+        }
+        .date-card-status .not-printed {
+            color: #e74c3c;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            font-size: 1.05em;
+        }
+        .date-card-details {
+            font-size: 1rem;
+            margin-top: 12px;
+            color: #2980b9d9;
+            word-break: break-all;
+            opacity: 0.93;
+        }
+        .date-card:hover {
+            transform: scale(1.07) translateY(-7px);
+            filter: brightness(1.07);
+            z-index: 2;
+        }
+        .date-card .fa-calendar-day {
+            color: #2980b9;
+        }
+        /* باقي التنسيقات كما في النسخ السابقة ... */
+        .search-filter { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px;}
+        .search-filter input, .search-filter select { padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px;}
+        .receipts-container { display: none;}
+        .receipt-copy { padding: 20px; background: #fff; position: relative; border-radius: 10px; margin-bottom: 20px; transition: all 0.3s ease; border: 2px solid #ecf0f1;}
+        .receipt-copy.not-printed { border: 2px solid #e74c3c; background: #fff5f5;}
+        .receipt-copy.printed { border: 2px solid #2ecc71; background: #f0fff4;}
+        .receipt-copy h1 { text-align: center; color: #e74c3c; font-size: 28px; margin-bottom: 15px; font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);}
+        .receipt-copy h2 { color: #3498db; font-size: 24px; margin-bottom: 15px; border-bottom: 2px dashed #3498db; padding-bottom: 8px; text-align: center;}
+        .receipt-copy p { margin: 10px 0; font-size: 16px; color: #2c3e50;}
+        .receipt-copy strong { color: #e67e22; font-weight: 700;}
+        .receipt-copy .receiptBooks { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 8px; white-space: pre-wrap; font-size: 15px; color: #7f8c8d; border-left: 4px solid #3498db;}
+        .receipt-actions { display: flex; justify-content: center; margin-top: 15px; gap: 10px;}
+        .toggle-btn { color: white; padding: 8px 15px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: background 0.3s ease;}
+        .toggle-btn.check { background: #2ecc71;}
+        .toggle-btn.uncheck { background: #e74c3c;}
+        .toggle-btn:hover { opacity: 0.9;}
+        .edit-btn { background: #f1c40f; color: white; padding: 8px 15px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: background 0.3s ease;}
+        .edit-btn:hover { background: #d4ac0d;}
+        .cancel-btn { background: #e74c3c; color: white; padding: 8px 15px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: background 0.3s ease;}
+        .cancel-btn:hover { background: #c0392b;}
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1001; overflow-y: auto;}
+        .modal-content { background: white; width: 90%; max-width: 500px; max-height: 80vh; margin: 50px auto; padding: 20px; border-radius: 10px; position: relative; overflow-y: auto;}
+        .close-btn { position: absolute; top: 10px; left: 10px; font-size: 24px; cursor: pointer; color: #e74c3c;}
+        .modal-content h3 { text-align: center; margin-bottom: 20px; color: #2c3e50;}
+        #editForm { display: flex; flex-direction: column; gap: 10px;}
+        #editForm label { font-weight: 700; color: #2c3e50;}
+        #editForm input, #editForm textarea, #editForm select { padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px;}
+        #editForm textarea { height: 100px; resize: vertical;}
+        #editForm button { background: #3498db; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: background 0.3s ease;}
+        #editForm button:hover { background: #2980b9;}
+        .dynamic-paper-counts { display: flex; flex-direction: column; gap: 8px;}
+        @media (max-width: 800px) {
+            .date-card { min-width: 120px; max-width: 150px; font-size: 14px; padding: 12px 6px;}
+            .dates-container { gap: 12px;}
+        }
+        @media (max-width: 768px) {
+            .container { margin: 10px; padding: 20px;}
+            h2 { font-size: 24px;}
+            .receipt-copy h1 { font-size: 24px;}
+            .receipt-copy h2 { font-size: 20px;}
+            .receipt-copy p { font-size: 14px;}
+            .receipt-copy .receiptBooks { font-size: 13px;}
+        }
+        .footer { background: #2c3e50; color: #ecf0f1; padding: 20px 0; text-align: center; position: relative; bottom: 0; width: 100%; box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);}
+        .footer-content { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 0 20px;}
+        .footer-content p { font-size: 16px; margin: 0;}
+        .social-icons { display: flex; gap: 15px;}
+        .social-icons a { color: #ecf0f1; font-size: 20px; transition: color 0.3s ease, transform 0.3s ease;}
+        .social-icons a:hover { color: #3498db; transform: scale(1.2);}
+    </style>
+</head>
+<body>
+    <!-- ناف بار -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <h1>الليثــــي برنــت</h1>
+            </div>
+            <div class="hamburger">☰</div>
+            <div class="nav-links">
+                <a href="./index.html">حجز طباعة</a>
+                <a href="./search.html">استعلام عن حجز</a>
+                <a href="./history.html" class="active">سجل الحجوزات</a>
+                <a href="./stats.html">الإحصائيات</a>
+                <a href="./manage_teachers.html">المعلمين</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <h2>سجل الحجوزات</h2>
+        <div class="dates-container" id="datesContainer"></div>
+        <div class="search-filter">
+            <input type="text" id="searchInput" placeholder="ابحث بالاسم..." onkeyup="filterReceipts()">
+            <select id="filterStatus" onchange="filterReceipts()">
+                <option value="all">الكل</option>
+                <option value="printed">مطبوع</option>
+                <option value="not-printed">غير مطبوع</option>
+            </select>
+        </div>
+        <div class="receipts-container" id="receiptsContainer"></div>
+        <div class="modal" id="editModal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeEditModal()">×</span>
+                <h3>تعديل الحجز</h3>
+                <form id="editForm">
+                    <label>الاسم:</label>
+                    <input type="text" id="editName" required>
+                    <label>الصف الدراسي:</label>
+                    <select id="editGrade" required>
+                        <option value="">اختر الصف</option>
+                        <option value="الأول الابتدائي">الأول الابتدائي</option>
+                        <option value="الثاني الابتدائي">الثاني الابتدائي</option>
+                        <option value="الثالث الابتدائي">الثالث الابتدائي</option>
+                        <option value="الرابع الابتدائي">الرابع الابتدائي</option>
+                        <option value="الخامس الابتدائي">الخامس الابتدائي</option>
+                        <option value="السادس الابتدائي">السادس الابتدائي</option>
+                        <option value="الأول الإعدادي">الأول الإعدادي</option>
+                        <option value="الثاني الإعدادي">الثاني الإعدادي</option>
+                        <option value="الثالث الإعدادي">الثالث الإعدادي</option>
+                        <option value="الأول الثانوي">الأول الثانوي</option>
+                        <option value="الثاني الثانوي">الثاني الثانوي</option>
+                        <option value="الثالث الثانوي">الثالث الثانوي</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                    <label>تاريخ الحجز:</label>
+                    <input type="date" id="editBookingDate" required disabled>
+                    <label>تاريخ الاستلام:</label>
+                    <input type="date" id="editReceiveDate" required>
+                    <label>مواصفات الطباعة:</label>
+                    <select id="editSpecifications" required>
+                        <option value="">اختر المواصفات</option>
+                        <option value="وجه واحد">وجه واحد</option>
+                        <option value="وجهين">وجهين</option>
+                        <option value="وجهين 2 صفحة فى الورقة">وجهين 2 صفحة فى الورقة</option>
+                    </select>
+                    <label>عدد الكتب:</label>
+                    <input type="number" id="editBookCount" required min="1">
+                    <div id="dynamicPaperCounts" class="dynamic-paper-counts"></div>
+                    <label>سعر الورقة:</label>
+                    <input type="number" id="editPaperPrice" required min="0" step="0.01">
+                    <label>أسماء الكتب:</label>
+                    <textarea id="editBookNames" required></textarea>
+                    <label>إجمالي عدد الأوراق:</label>
+                    <input type="number" id="editTotalPapers" required min="0" step="1" readonly>
+                    <label>إجمالي السعر الكلى:</label>
+                    <input type="number" id="editTotalPaperAmount" required min="0" step="0.01" readonly>
+                    <input type="hidden" id="editParentKey">
+                    <input type="hidden" id="editKey">
+                    <button type="submit">حفظ التعديلات</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-content">
+            <p>جميع الحقوق محفوظة © 2025 Ziad Hagagy</p>
+            <div class="social-icons">
+                <a href="https://www.facebook.com/ZiadHassaann" target="_blank" aria-label="فيسبوك">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://wa.me/201027888008" target="_blank" aria-label="واتساب">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+        // إعداد Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyAyi_wxwTK0ywftlnjAWXKJ3RJN6RMeb1M",
+    authDomain: "booking-books-4ebd7.firebaseapp.com",
+    databaseURL: "https://booking-books-4ebd7-default-rtdb.firebaseio.com",
+    projectId: "booking-books-4ebd7",
+    storageBucket: "booking-books-4ebd7.firebasestorage.app",
+    messagingSenderId: "1001203182166",
+    appId: "1:1001203182166:web:2ba3c295bde10628e1e9f7"
+};
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// دالة جلب اسم اليوم بالعربي من تاريخ yyyy-mm-dd
+function getArabicDayName(dateString) {
+    const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+    const d = new Date(dateString);
+    return days[d.getDay()];
+}
+
+let selectedDate = null;
+let receiptsByDateGlobal = {}; // نحتاجها لتحديث البطاقات مباشرة
+
+window.onload = function() {
+    const datesContainer = document.getElementById('datesContainer');
+    let dates = new Set();
+
+    database.ref('bookings').once('value')
+    .then((snapshot) => {
+        if (snapshot.exists()) {
+            let receiptsByDate = {};
+            snapshot.forEach((childSnapshot) => {
+                const cleanName = childSnapshot.key;
+                childSnapshot.forEach((subSnapshot) => {
+                    const data = subSnapshot.val();
+                    const bookingDate = data.bookingDate;
+                    if (bookingDate) {
+                        dates.add(bookingDate);
+                        if (!receiptsByDate[bookingDate]) {
+                            receiptsByDate[bookingDate] = [];
+                        }
+                        receiptsByDate[bookingDate].push({
+                            data: data,
+                            key: subSnapshot.key,
+                            parentKey: cleanName,
+                            timestamp: data.timestamp || 0
+                        });
+                    }
+                });
+            });
+            receiptsByDateGlobal = receiptsByDate;
+
+            // ترتيب التواريخ من الأحدث إلى الأقدم
+            const sortedDates = Array.from(dates).sort((a, b) => new Date(b) - new Date(a));
+
+            datesContainer.innerHTML = "";
+            sortedDates.forEach((date) => {
+                const receipts = receiptsByDate[date];
+                const printedCount = receipts.filter(receipt => receipt.data.isPrinted).length;
+                const notPrintedCount = receipts.length - printedCount;
+                let statusClass;
+                if (printedCount === receipts.length && receipts.length > 0) {
+                    statusClass = "all-printed";
+                } else if (printedCount === 0) {
+                    statusClass = "none-printed";
+                } else {
+                    statusClass = "some-printed";
+                }
+                // بطاقة احترافية مع اليوم
+                const dateCard = document.createElement('div');
+                dateCard.className = `date-card ${statusClass}`;
+                dateCard.tabIndex = 0;
+                dateCard.dataset.date = date;
+                dateCard.innerHTML = `
+                    <div class="date-card-header">
+                        <span class="date-card-date">
+                            <i class="fa fa-calendar-day"></i>
+                            <span>${date}</span>
+                            <span class="date-card-day">${getArabicDayName(date)}</span>
+                        </span>
+                        <span class="date-card-status">
+                            <span class="not-printed"><i class="fa fa-times-circle"></i> <span class="not-printed-count">${notPrintedCount}</span></span>
+                            <span class="printed"><i class="fa fa-check-circle"></i> <span class="printed-count">${printedCount}</span></span>
+                        </span>
+                    </div>
+                    <div class="date-card-details">
+                        <span class="date-card-detail-text">
+                            ${
+                                printedCount === receipts.length && receipts.length > 0
+                                ? '<i class="fa fa-check"></i> تم طباعة جميع الحجوزات'
+                                : printedCount === 0
+                                    ? '<i class="fa fa-times"></i> لا يوجد مطبوعات'
+                                    : '<i class="fa fa-exclamation"></i> بعض الحجوزات مطبوعة'
+                            }
+                        </span>
+                    </div>
+                `;
+                dateCard.onclick = () => toggleReceiptsForDate(date, dateCard, receiptsByDate);
+                dateCard.onkeydown = (e) => { if(e.key === 'Enter' || e.key === ' ') dateCard.click(); };
+                dateCard.addEventListener('click', () => {
+                    document.querySelectorAll('.date-card').forEach(card => card.classList.remove('active'));
+                    dateCard.classList.add('active');
+                });
+                datesContainer.appendChild(dateCard);
+            });
+        } else {
+            datesContainer.innerHTML = '<p>لا توجد حجوزات مسجلة!</p>';
+        }
+    });
+};
+
+function updateDateCardStatus(bookingDate) {
+    const receipts = receiptsByDateGlobal[bookingDate];
+    if (!receipts) return;
+    const printedCount = receipts.filter(r => r.data.isPrinted).length;
+    const notPrintedCount = receipts.length - printedCount;
+
+    const dateCard = document.querySelector(`.date-card[data-date="${bookingDate}"]`);
+    if (!dateCard) return;
+
+    // تحديث الأرقام
+    dateCard.querySelector('.not-printed-count').textContent = notPrintedCount;
+    dateCard.querySelector('.printed-count').textContent = printedCount;
+
+    // تحديث النص والوضع اللوني
+    let statusClass;
+    let detailText;
+    if (printedCount === receipts.length && receipts.length > 0) {
+        statusClass = "all-printed";
+        detailText = '<i class="fa fa-check"></i> تم طباعة جميع الحجوزات';
+    } else if (printedCount === 0) {
+        statusClass = "none-printed";
+        detailText = '<i class="fa fa-times"></i> لا يوجد مطبوعات';
+    } else {
+        statusClass = "some-printed";
+        detailText = '<i class="fa fa-exclamation"></i> بعض الحجوزات مطبوعة';
+    }
+    dateCard.classList.remove('all-printed', 'none-printed', 'some-printed');
+    dateCard.classList.add(statusClass);
+    dateCard.querySelector('.date-card-detail-text').innerHTML = detailText;
+}
+
+function toggleReceiptsForDate(date, button, receiptsByDate) {
+    const receiptsContainer = document.getElementById('receiptsContainer');
+
+    if (selectedDate === date) {
+        receiptsContainer.style.display = 'none';
+        selectedDate = null;
+        button.classList.remove('active');
+        return;
+    }
+
+    selectedDate = date;
+
+    document.querySelectorAll('.date-card').forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+
+    receiptsContainer.innerHTML = '';
+    receiptsContainer.style.display = 'block';
+
+    const receipts = receiptsByDate[date] || [];
+    if (receipts.length > 0) {
+        receipts.sort((a, b) => b.timestamp - a.timestamp);
+
+        receipts.forEach((receipt) => {
+            const data = receipt.data;
+            const isPrinted = data.isPrinted || false;
+            const receiptElement = document.createElement('div');
+            receiptElement.className = `receipt-copy ${isPrinted ? 'printed' : 'not-printed'}`;
+            receiptElement.innerHTML = `
+                <h1>شركة الليثي برنــت</h1>
+                <h2>إيصال الحجز - نسخة الموظف</h2>
+                <p><strong>الاسم:</strong> ${data.name}</p>
+                <p><strong>الصف الدراسي:</strong> ${data.grade}</p>
+                <p><strong>تاريخ الحجز:</strong> ${data.bookingDate}</p>
+                <p><strong>تاريخ الاستلام:</strong> ${data.receiveDate}</p>
+                <p><strong>المواصفات:</strong> ${data.specifications}</p>
+                <p><strong>عدد الكتب:</strong> ${data.bookCount}</p>
+                <p><strong>نوع التقفيل:</strong> ${data.bindingType ? data.bindingType : '<span style="color:#e67e22;">غير محدد</span>'}</p>
+                <p><strong>سعر الورقة:</strong> ${data.paperPrice ? data.paperPrice + " جنيه" : "-"}</p>
+                <p><strong>أسماء الكتب:</strong></p>
+                <div class="receiptBooks">${data.bookNames}</div>
+                <p><strong>عدد الورق:</strong></p>
+                <div>${Array.isArray(data.paperCounts) ? data.paperCounts.map((v,i)=>`عدد الورق للكتاب رقم ${i+1}: ${v}`).join('<br>') : (data.paperCounts || '')}</div>
+                <p><strong>إجمالى عدد الأوراق:</strong> ${data.totalPapers ? data.totalPapers : "-"}</p>
+                <p><strong>إجمالى السعر الكلى:</strong> ${data.totalPaperAmount ? data.totalPaperAmount + " جنيه" : "-"}</p>
+                <div class="receipt-actions">
+                    <button class="toggle-btn ${isPrinted ? 'uncheck' : 'check'}" 
+                            onclick="togglePrintStatus('${receipt.parentKey}', '${receipt.key}', this, '${data.bookingDate}')">
+                        ${isPrinted ? 'Uncheck' : 'Check'}
+                    </button>
+                    <button class="edit-btn" onclick="openEditModal('${receipt.parentKey}', '${receipt.key}', '${data.name}', '${data.grade}', '${data.bookingDate}', '${data.receiveDate}', '${data.specifications}', '${data.bookCount}', '${data.paperPrice || ""}', \`${data.bookNames || ""}\`, '${Array.isArray(data.paperCounts)? data.paperCounts.join(","): (data.paperCounts || "")}', '${data.totalPapers || ""}', '${data.totalPaperAmount || ""}')">تعديل</button>
+                    <button class="cancel-btn" onclick="cancelBooking('${receipt.parentKey}', '${receipt.key}', '${data.bookingDate}')">إلغاء</button>
+                </div>
+            `;
+            receiptsContainer.appendChild(receiptElement);
+        });
+        filterReceipts();
+    } else {
+        receiptsContainer.innerHTML = '<p>لا توجد حجوزات في هذا التاريخ!</p>';
+    }
+}
+
+function filterReceipts() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const filterStatus = document.getElementById('filterStatus').value;
+    const receipts = document.querySelectorAll('.receipt-copy');
+
+    receipts.forEach(receipt => {
+        const name = receipt.querySelector('p:nth-child(3)').textContent.toLowerCase();
+        const isPrinted = receipt.classList.contains('printed');
+
+        const matchesSearch = name.includes(searchInput);
+        const matchesFilter = 
+            filterStatus === 'all' || 
+            (filterStatus === 'printed' && isPrinted) || 
+            (filterStatus === 'not-printed' && !isPrinted);
+
+        if (matchesSearch && matchesFilter) {
+            receipt.style.display = 'block';
+        } else {
+            receipt.style.display = 'none';
+        }
+    });
+}
+
+function togglePrintStatus(parentKey, key, button, bookingDate) {
+    const isCurrentlyPrinted = button.classList.contains('uncheck');
+
+    let confirmMessage;
+    if (isCurrentlyPrinted) {
+        confirmMessage = "هل أنت متأكد أنك لم تنتهِ من طباعة كتب هذا الإيصال؟ سيتم تغيير حالة الإيصال إلى 'غير مطبوع'.";
+    } else {
+        confirmMessage = "هل أنت متأكد أنك انتهيت من طباعة كتب هذا الإيصال؟ سيتم تغيير حالة الإيصال إلى 'مطبوع'.";
+    }
+
+    const userConfirmed = confirm(confirmMessage);
+    if (!userConfirmed) {
+        return;
+    }
+
+    const receiptRef = database.ref(`bookings/${parentKey}/${key}`);
+    const newStatus = !isCurrentlyPrinted;
+    receiptRef.update({
+        isPrinted: newStatus
+    })
+    .then(() => {
+        // تحديث في البطاقة مباشرة دون تحديث الصفحة
+        const receiptsArr = receiptsByDateGlobal[bookingDate];
+        if (receiptsArr) {
+            for (let rec of receiptsArr) {
+                if (rec.parentKey === parentKey && rec.key === key) {
+                    rec.data.isPrinted = newStatus;
+                }
+            }
+        }
+        updateDateCardStatus(bookingDate);
+
+        // تحديث شكل الإيصال
+        const receiptElement = button.closest('.receipt-copy');
+        if (newStatus) {
+            receiptElement.classList.remove('not-printed');
+            receiptElement.classList.add('printed');
+            button.classList.remove('check');
+            button.classList.add('uncheck');
+            button.textContent = 'Uncheck';
+        } else {
+            receiptElement.classList.remove('printed');
+            receiptElement.classList.add('not-printed');
+            button.classList.remove('uncheck');
+            button.classList.add('check');
+            button.textContent = 'Check';
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert("حدث خطأ أثناء تحديث حالة الطباعة!");
+    });
+}
+
+// باقي الكود الخاص بالمودال وتعديل الإيصال (بدون تغيير)
+function generatePaperCountInputs(bookCount, paperCountsArr) {
+    let html = '';
+    for(let i = 0; i < bookCount; i++) {
+        html += `<input type="number" class="paper-count-input" min="1" value="${paperCountsArr && paperCountsArr[i] ? paperCountsArr[i] : ''}" placeholder="عدد أوراق الكتاب رقم ${i+1}" required>`;
+    }
+    return html;
+}
+
+function updateTotalsInModal() {
+    const paperCountInputs = document.querySelectorAll('.paper-count-input');
+    let totalPapers = 0;
+    let paperCountsArr = [];
+    paperCountInputs.forEach(input => {
+        const val = parseInt(input.value) || 0;
+        totalPapers += val;
+        paperCountsArr.push(val);
+    });
+    document.getElementById('editTotalPapers').value = totalPapers;
+    const paperPrice = parseFloat(document.getElementById('editPaperPrice').value) || 0;
+    const specification = document.getElementById('editSpecifications').value;
+    let adjustedPages = totalPapers;
+    if (specification === 'وجهين') adjustedPages = Math.ceil(totalPapers / 2);
+    else if (specification === 'وجهين 2 صفحة فى الورقة') adjustedPages = Math.ceil(totalPapers / 4);
+    document.getElementById('editTotalPaperAmount').value = (adjustedPages * paperPrice).toFixed(2);
+}
+
+function handleBookCountInputChange() {
+    const bookCount = parseInt(document.getElementById('editBookCount').value) || 0;
+    const dynamicDiv = document.getElementById('dynamicPaperCounts');
+    let paperCountsArr = [];
+    document.querySelectorAll('.paper-count-input').forEach((input, i) => {
+        paperCountsArr[i] = input.value;
+    });
+    dynamicDiv.innerHTML = generatePaperCountInputs(bookCount, paperCountsArr);
+    document.querySelectorAll('.paper-count-input').forEach(input => {
+        input.addEventListener('input', updateTotalsInModal);
+    });
+    updateTotalsInModal();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('editBookCount').addEventListener('input', handleBookCountInputChange);
+    document.getElementById('editPaperPrice').addEventListener('input', updateTotalsInModal);
+    document.getElementById('editSpecifications').addEventListener('change', updateTotalsInModal);
+});
+
+function openEditModal(parentKey, key, name, grade, bookingDate, receiveDate, specifications, bookCount, paperPrice, bookNames, paperCounts, totalPapers, totalPaperAmount) {
+    const modal = document.getElementById('editModal');
+    document.getElementById('editParentKey').value = parentKey;
+    document.getElementById('editKey').value = key;
+    document.getElementById('editName').value = name;
+    document.getElementById('editGrade').value = grade;
+    document.getElementById('editBookingDate').value = bookingDate;
+    document.getElementById('editReceiveDate').value = receiveDate;
+    document.getElementById('editSpecifications').value = specifications;
+    document.getElementById('editBookCount').value = bookCount;
+    document.getElementById('editPaperPrice').value = paperPrice;
+    document.getElementById('editBookNames').value = bookNames;
+    let paperCountsArr = [];
+    if (typeof paperCounts === 'string') {
+        paperCountsArr = paperCounts.split(',').map(x => x.trim());
+    } else if (Array.isArray(paperCounts)) {
+        paperCountsArr = paperCounts;
+    }
+    document.getElementById('dynamicPaperCounts').innerHTML = generatePaperCountInputs(parseInt(bookCount), paperCountsArr);
+    document.querySelectorAll('.paper-count-input').forEach(input => {
+        input.addEventListener('input', updateTotalsInModal);
+    });
+    document.getElementById('editTotalPapers').value = totalPapers;
+    document.getElementById('editTotalPaperAmount').value = totalPaperAmount;
+    modal.style.display = 'block';
+    setTimeout(updateTotalsInModal, 100);
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('editModal');
+    modal.style.display = 'none';
+}
+
+function cancelBooking(parentKey, key, bookingDate) {
+    const confirmCancel = confirm('هل أنت متأكد من إلغاء هذا الحجز؟');
+    if (!confirmCancel) {
+        return;
+    }
+    const receiptRef = database.ref(`bookings/${parentKey}/${key}`);
+    receiptRef.remove()
+    .then(() => {
+        alert('تم إلغاء الحجز بنجاح!');
+        location.reload();
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء إلغاء الحجز!');
+    });
+}
+
+document.getElementById('editForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const parentKey = document.getElementById('editParentKey').value;
+    const key = document.getElementById('editKey').value;
+    let paperCountsArr = [];
+    document.querySelectorAll('.paper-count-input').forEach(input => {
+        paperCountsArr.push(input.value);
+    });
+    if (paperCountsArr.some(v => isNaN(Number(v)) || Number(v) <= 0)) {
+        alert("يرجى إدخال عدد الأوراق بشكل صحيح لكل كتاب");
+        return;
+    }
+    const updatedData = {
+        name: document.getElementById('editName').value,
+        grade: document.getElementById('editGrade').value,
+        bookingDate: document.getElementById('editBookingDate').value,
+        receiveDate: document.getElementById('editReceiveDate').value,
+        specifications: document.getElementById('editSpecifications').value,
+        bookCount: parseInt(document.getElementById('editBookCount').value),
+        paperPrice: parseFloat(document.getElementById('editPaperPrice').value),
+        bookNames: document.getElementById('editBookNames').value,
+        paperCounts: paperCountsArr,
+        totalPapers: parseInt(document.getElementById('editTotalPapers').value),
+        totalPaperAmount: parseFloat(document.getElementById('editTotalPaperAmount').value)
+    };
+    database.ref(`bookings/${parentKey}/${key}`).update(updatedData)
+    .then(() => {
+        alert('تم تحديث الحجز بنجاح!');
+        closeEditModal();
+        location.reload();
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء تحديث الحجز!');
+    });
+});
+
+// ناف بار موبايل
+document.querySelector('.hamburger')?.addEventListener('click', function() {
+    document.querySelector('.nav-links').classList.toggle('active');
+});
+
+// تعطيل كليك يمين وF12
+document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+});
+document.addEventListener("keydown", function (e) {
+    if (e.key === "F12" || 
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) || 
+        (e.ctrlKey && e.key === "U")) {
+        e.preventDefault();
+    }
+});
+    </script>
+</body>
+</html>
